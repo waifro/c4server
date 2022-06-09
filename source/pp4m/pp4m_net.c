@@ -50,12 +50,11 @@ int pp4m_NET_Init(PP4M_NET_IPPROTO protocol) {
     if (pp4m_socket == -1) {
         int error = errno;
         pp4m_IO_Feedback("feedback.txt", strerror(error));
-        result = -1;
     }
 
-    if (result == 0) pp4m_protocol = protocol;
+    if (pp4m_socket == 0) pp4m_protocol = protocol;
 
-	return result;
+	return pp4m_socket;
 }
 
 int pp4m_NET_Quit(void) {
