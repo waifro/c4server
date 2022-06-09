@@ -34,7 +34,10 @@ void func(int connfd)
         memset(buff, 0x00, MAX);
 
         // read the message from client and copy it in buffer
-        read(connfd, buff, sizeof(buff));
+        if (recv(connfd, buff, MAX, 0) > 0) {
+            printf("error client: %d\n", errno);
+            break;
+        }
 
         // print buffer which contains the client contents
         printf("From client: %s\t To client : ", buff);
@@ -48,12 +51,6 @@ void func(int connfd)
 
         // and send that buffer to client
         write(connfd, buff, sizeof(buff));
-
-        // if msg contains "Exit" then server exit and chat ended.
-        if (strncmp("exit", buff, 4) == 0) {
-            printf("Server Exit...\n");
-            break;
-        }
     }
 }
 
@@ -68,7 +65,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    printf("Socket successfully created..\n");
+    printf("socket successfully created...\n");
 
     memset(&servaddr, 0x00, sizeof(servaddr));
 
@@ -83,7 +80,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    printf("Socket successfully binded..\n");
+    printf("server successfully binded...\n");
 
     // Now server is ready to listen and verification
     if ((listen(sockfd, 5)) != 0) {
@@ -91,21 +88,23 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    printf("Server listening..\n");
+    printf("server waiting...\n");
 
     len = sizeof(cli);
 
     // Accept the data packet from client and verification
-    connfd = accept(sockfd, (SA*)&cli, &len);
-    if (connfd < 0) {
-        printf("server accept failed...\n");
-        exit(0);
+
+    while(1) {
+        connfd = accept(sockfd, (SA*)&cli, &len);
+
+        if (connfd > -1) {
+            printf("server accepted the client [%s]\n", inet_ntoa(cli.sin_addr));
+
+            // Function for chatting between client and server
+            func(connfd);
+        }
     }
 
-    printf("server accept the client...\n");
-
-    // Function for chatting between client and server
-    func(connfd);
 
     // After chatting close the socket
     close(sockfd);
