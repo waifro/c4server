@@ -94,10 +94,9 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-
     // assign IP, PORT
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(PORT);
 
     // Binding newly created socket to given IP and verification
@@ -107,7 +106,7 @@ int main(int argc, char *argv[]) {
     } printf("socket successfully binded...\n");
 
 
-    // Now server is ready to listen and verification
+    // maximum of 5 pending connections
     if ((listen(master_socket_fd, 5)) != 0) {
         printf("Listen failed...\n");
         exit(0);
@@ -158,15 +157,15 @@ int main(int argc, char *argv[]) {
 
         // listen to incoming connections
         result = select(max_sockfd + 1, &read_setd, NULL, NULL, &timeout);
-        if (result == -1) printf("error on a file descriptor, see manpage for info (errno: %d)\n", errno);
+        if (result == -1) perror("error on a file descriptor");
 
         // triggers on new incoming connection
         if (FD_ISSET(master_socket_fd, &read_setd)) {
             new_socket = connect(master_socket_fd, (SA*)&addr, addr_size);
 
             // no errors on new socket
-            if (!new_socket || new_socket == -1) {
-                printf("error new socket (errno: %d)\n", errno);
+            if (new_socket == -1) {
+                perror("error new socket");
                 continue;
             }
 
