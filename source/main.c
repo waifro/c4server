@@ -20,10 +20,7 @@
 #include "pp4m/pp4m_io.h"
 #include "pp4m/pp4m_net.h"
 
-#define MAX 80
 #define PORT 62443
-#define SA struct sockaddr
-
 #define MAX_CLIENTS 30
 
 // this struct will be used to join two incoming connections to compete the game
@@ -67,8 +64,46 @@ void func(int connfd, struct sockaddr_in in)
 */
 
 // Driver function
-int main(int argc, char *argv[]) {
+int main(void) {
 
+    int master_socket = -1, result;
+    struct sockaddr_in addr;
+
+    master_socket = pp4m_NET_Init(TCP);
+    if (master_socket == -1) {
+        printf("master_socket:  %s\n", strerror(errno));
+        exit(0);
+    }
+
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port = htons(PORT);
+
+    result = bind(master_socket, (struct sockaddr*)&addr, sizeof(addr));
+    if (result == -1) {
+        printf("bind: %s\n", strerror(errno));
+        exit(0);
+    }
+
+    result = listen(master_socket, SOMAXCONN);
+    if (result == -1) {
+        printf("listen: %s\n", strerror(errno));
+        exit(0);
+    }
+
+    printf("server started\n");
+
+    int sockaddr_size = sizeof(struct sockaddr);
+
+    result = accept(master_socket, (struct sockaddr*)&addr, &sockaddr_size);
+    if (result == -1) {
+        printf("accept: %s, %d\n", strerror(errno), WSAGetLastError());
+        exit(0);
+    }
+
+    printf("connection estabilished: %s:%d\n", inet_ntoa(addr.sin_addr), htons(addr.sin_port));
+
+    /*
     int master_socket_fd = 0;
     struct sockaddr_in addr;
     memset(&addr, 0x00, sizeof(addr));
@@ -200,7 +235,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-
+    */
     // After chatting close the socket
-    close(master_socket_fd);
+    close(master_socket);
 }
