@@ -90,8 +90,20 @@ int pp4m_NET_ServerStart(int port) {
     return result;
 }
 
-int pp4m_NET_GetLocalAddress(char *destination) {
+int pp4m_NET_GetLocalAddress(int socket, char *destination) {
     int result = 0;
+
+    struct sockaddr_in localAddress;
+    socklen_t addressLength = sizeof(localAddress);
+    result = getsockname(socket, (struct sockaddr*)&localAddress, &size);
+    if (result == -1) return -1;
+
+    strcpy(destination, buf);
+
+    return result;
+}
+
+int pp4m_NET_GetLocalHostname(char *destination) {
 
     char buf[256];
     result = gethostname(buf, sizeof(buf));
@@ -105,7 +117,7 @@ int pp4m_NET_GetLocalAddress(char *destination) {
     return result;
 }
 
-int pp4m_NET_ConnectServerHostname(char *hostname, int port) {
+int pp4m_NET_ConnectServerByHostname(char *hostname, int port) {
     int result = 0;
 
     struct hostent *host;
