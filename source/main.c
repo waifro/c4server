@@ -95,13 +95,30 @@ int main(void) {
 
     int sockaddr_size = sizeof(struct sockaddr);
 
-    result = accept(master_socket, (struct sockaddr*)&addr, &sockaddr_size);
-    if (result == -1) {
-        printf("accept: %s, %d\n", strerror(errno), WSAGetLastError());
-        exit(0);
-    }
+    fd_set sets_fd;
 
-    printf("connection estabilished: %s:%d\n", inet_ntoa(addr.sin_addr), htons(addr.sin_port));
+    while(1) {
+
+        FD_ZERO(&sets_fd);
+        FD_SET(master_socket, &sets_fd);
+
+        result = select(master_socket + 1, &sets_fd, NULL, NULL, NULL);
+        if (result == -1) {
+            printf("select: %s\n", strerror(errno));
+            exit(0);
+        }
+
+        if (FD_ISSET(master_socket, &sets_fd)) {
+
+            result = accept(master_socket, (struct sockaddr*)&addr, &sockaddr_size);
+            if (result == -1) {
+                printf("accept: %s, %d\n", strerror(errno), WSAGetLastError());
+                exit(0);
+            }
+
+            printf("connection estabilished: %s:%d\n", inet_ntoa(addr.sin_addr), htons(addr.sin_port));
+        }
+    }
 
     /*
     int master_socket_fd = 0;
