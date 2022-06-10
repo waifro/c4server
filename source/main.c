@@ -21,47 +21,13 @@
 #include "pp4m/pp4m_net.h"
 
 #define PORT 62443
-#define MAX_CLIENTS 30
+#define MAX_CLIENTS 2
 
 // this struct will be used to join two incoming connections to compete the game
 typedef struct {
     int sfd_a, sfd_b;
 } pair_sockfd_t;
 
-/*
-// Function designed for chat between client and server.
-void func(int connfd, struct sockaddr_in in)
-{
-    char buff[MAX];
-    int n;
-
-    // infinite loop for chat
-    while(1) {
-
-        memset(buff, 0x00, MAX);
-
-        // read the message from client and copy it in buffer
-        if (recv(connfd, buff, MAX, 0) < 0) {
-            printf("client id disconnected: %d\tip: [%s:%d]\n", connfd, inet_ntoa(in.sin_addr), ntohs(in.sin_port));
-            break;
-        }
-
-        // print buffer which contains the client contents
-        printf("From client: %s\t To client : ", buff);
-
-        memset(buff, 0x00, MAX);
-
-        n = 0;
-
-        // copy server message in the buffer
-        while ((buff[n++] = getchar()) != '\n') ;
-
-        // and send that buffer to client
-        write(connfd, buff, sizeof(buff));
-
-    }
-}
-*/
 
 // Driver function
 int main(void) {
@@ -91,18 +57,45 @@ int main(void) {
         exit(0);
     }
 
-    printf("server started\n");
+    printf("c4server ready\n");
 
-    int sockaddr_size = sizeof(struct sockaddr);
+    char buffer[256];
+    int new_socket = 0;
+    int max_socket = 0;
+    int buf_socket = 0;
+    int client_socklist[MAX_CLIENTS];
+
+    for(int i = 0; i < MAX_CLIENTS; i++)
+        client_socklist[i] = 0;
 
     fd_set sets_fd;
+    int sockaddr_size = sizeof(struct sockaddr);
+    struct timeval timeout = {0, 0};
+
+    printf("c4server starting... idle\n\n");
 
     while(1) {
 
         FD_ZERO(&sets_fd);
-        FD_SET(master_socket, &sets_fd);
 
-        result = select(master_socket + 1, &sets_fd, NULL, NULL, NULL);
+        FD_SET(master_socket, &sets_fd);
+        max_socket = master_socket;
+
+        for (int i = 0; i < MAX_CLIENTS; i++) {
+            buf_socket = client_socklist[i];
+
+            // if valid socket descriptor then add to read list
+            if (buf_socket > 0)
+                FD_SET(buf_socket, &sets_fd);
+
+            //set highest file descriptor number, need it for the select() function
+            if(buf_socket > max_socket)
+                max_socket = buf_socket;
+        }
+
+
+
+        result = select(master_socket + 1, &sets_fd, NULL, NULL, &timeout);
         if (result == -1) {
             printf("select: %s\n", strerror(errno));
             exit(0);
@@ -110,13 +103,48 @@ int main(void) {
 
         if (FD_ISSET(master_socket, &sets_fd)) {
 
-            result = accept(master_socket, (struct sockaddr*)&addr, &sockaddr_size);
-            if (result == -1) {
+            new_socket = accept(master_socket, (struct sockaddr*)&addr, &sockaddr_size);
+            if (new_socket == -1) {
                 printf("accept: %s, %d\n", strerror(errno), WSAGetLastError());
                 exit(0);
             }
 
-            printf("connection estabilished: %s:%d\n", inet_ntoa(addr.sin_addr), htons(addr.sin_port));
+            for (int i = 0; i < MAX_CLIENTS; i++)
+                if (client_socklist[i] == 0) {
+                    client_socklist[i] = new_socket;
+                    break;
+                }
+
+            int connected = 0;
+            for (int n = 0; n < MAX_CLIENTS; n++)
+                if (client_socklist[n] != 0) connected++;
+
+            if (connected == MAX_CLIENTS) {
+                printf("client entering: %s:%d\t[%d of %d] host full\n", inet_ntoa(addr.sin_addr), htons(addr.sin_port), connected, MAX_CLIENTS);
+            } else printf("client connected: %s:%d\t[%d of %d]\n", inet_ntoa(addr.sin_addr), htons(addr.sin_port), connected, MAX_CLIENTS);
+        }
+
+        // update state of other sockets
+        for (int i = 0; i < MAX_CLIENTS; i++) {
+            buf_socket = client_socklist[i];
+
+            // if an old connection triggered
+            if (FD_ISSET(buf_socket, &sets_fd)) {
+
+                // lost connection (?)
+                if (read(buf_socket, buffer, 255) == -1) {
+                    getpeername(buf_socket, (struct sockaddr*)&addr, &sockaddr_size);
+
+                    close(buf_socket);
+                    client_socklist[i] = 0;
+
+                    int connected = 0;
+                    for (int n = 0; n < MAX_CLIENTS; n++)
+                        if (client_socklist[n] != 0) connected++;
+
+                    printf("client disconnect: %s:%d\t[%d of %d]\n", inet_ntoa(addr.sin_addr), htons(addr.sin_port), connected, MAX_CLIENTS);
+                }
+            }
         }
     }
 
