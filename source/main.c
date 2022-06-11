@@ -22,6 +22,7 @@
 
 #define PORT 62443
 #define MAX_CLIENTS 2
+#define MAX_ROOMID MAX_CLIENTS/2
 
 // this struct will be used to join two incoming connections to compete the game
 typedef struct {
@@ -60,6 +61,7 @@ int main(void) {
     printf("c4server ready\n");
 
     char buffer[256];
+    int connected = 0;
     int new_socket = 0;
     int max_socket = 0;
     int buf_socket = 0;
@@ -71,6 +73,9 @@ int main(void) {
     fd_set sets_fd;
     int sockaddr_size = sizeof(struct sockaddr);
     struct timeval timeout = {0, 0};
+
+    int roomId = 0;
+    pair_sockfd_t sockfd_room[MAX_ROOMID];
 
     printf("c4server starting... idle\n\n");
 
@@ -115,13 +120,29 @@ int main(void) {
                     break;
                 }
 
-            int connected = 0;
-            for (int n = 0; n < MAX_CLIENTS; n++)
-                if (client_socklist[n] != 0) connected++;
+            printf("client connect: %s:%d\t", inet_ntoa(addr.sin_addr), htons(addr.sin_port));
 
-            if (connected == MAX_CLIENTS) {
-                printf("client entering: %s:%d\t[%d of %d] host full\n", inet_ntoa(addr.sin_addr), htons(addr.sin_port), connected, MAX_CLIENTS);
-            } else printf("client connected: %s:%d\t[%d of %d]\n", inet_ntoa(addr.sin_addr), htons(addr.sin_port), connected, MAX_CLIENTS);
+            if (connected > MAX_CLIENTS) {
+                printf("[%d of %d] | server full, ignored\n", --connected, MAX_CLIENTS);
+            } else {
+
+                printf("[%d of %d] | ", ++connected, MAX_CLIENTS);
+
+                int room = 0;
+                for (room = 0; room < MAX_ROOMID; room++) {
+                    if (sockfd_room[room].sfd_a == 0) {
+                        sockfd_room[room].sfd_a = new_socket;
+                        break;
+                    } else if (sockfd_room[room].sfd_b == 0) {
+                        sockfd_room[room].sfd_b = new_socket;
+                        break;
+                    }
+                }
+
+
+                if (room >= MAX_ROOMID) printf("\n");
+                else printf("assigned roomId: %d[%d:%d]\n", room, sockfd_room[room].sfd_a, sockfd_room[room].sfd_b);
+            }
         }
 
         // update state of other sockets
@@ -135,14 +156,24 @@ int main(void) {
                 if (read(buf_socket, buffer, 255) == -1) {
                     getpeername(buf_socket, (struct sockaddr*)&addr, &sockaddr_size);
 
+                    printf("client disconnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
+
+                    int room = 0;
+                    for (room = 0; room < MAX_ROOMID; room++) {
+                        if (sockfd_room[room].sfd_a == buf_socket) {
+                            sockfd_room[room].sfd_a = 0;
+                            break;
+                        } else if (sockfd_room[room].sfd_b == buf_socket) {
+                            sockfd_room[room].sfd_b = 0;
+                            break;
+                        }
+                    }
+
                     close(buf_socket);
                     client_socklist[i] = 0;
 
-                    int connected = 0;
-                    for (int n = 0; n < MAX_CLIENTS; n++)
-                        if (client_socklist[n] != 0) connected++;
-
-                    printf("client disconnect: %s:%d\t[%d of %d]\n", inet_ntoa(addr.sin_addr), htons(addr.sin_port), connected, MAX_CLIENTS);
+                    if (room >= MAX_ROOMID) printf("\n");
+                    else printf("roomId %d[%d:%d]\n", room, sockfd_room[room].sfd_a, sockfd_room[room].sfd_b);
                 }
             }
         }
