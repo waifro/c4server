@@ -77,6 +77,12 @@ int main(void) {
     int roomId = 0;
     pair_sockfd_t sockfd_room[MAX_ROOMID];
 
+    for (int i = 0; i < MAX_ROOMID; i++) {
+        sockfd_room[i].sfd_a = 0;
+        sockfd_room[i].sfd_b = 0;
+    }
+
+
     printf("c4server starting... idle\n\n");
 
     while(1) {
@@ -156,7 +162,7 @@ int main(void) {
                 if (read(buf_socket, buffer, 255) == -1) {
                     getpeername(buf_socket, (struct sockaddr*)&addr, &sockaddr_size);
 
-                    printf("client disconnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
+                    printf("client discnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
 
                     int room = 0;
                     for (room = 0; room < MAX_ROOMID; room++) {
