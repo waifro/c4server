@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
-
+#include <time.h>
 #include <sys/time.h> // fd_set readfds;
 
 #include "pp4m/pp4m_io.h"
