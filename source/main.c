@@ -156,7 +156,9 @@ int main(void) {
                     if (sockfd_room[room].sfd_a == 0) {
                         sockfd_room[room].sfd_a = new_socket;
                         break;
-                    } else if (sockfd_room[room].sfd_b == 0) {
+                    }
+
+                    if (sockfd_room[room].sfd_b == 0) {
                         sockfd_room[room].sfd_b = new_socket;
                         break;
                     }
@@ -216,7 +218,8 @@ int main(void) {
 
                     close(buf_socket);
                     client_socklist[i] = 0;
-
+                    buf_socket = 0;
+                    
                     if (room >= MAX_ROOMID) printf("\n");
                     else printf("roomId %d[%d:%d]\n", room, sockfd_room[room].sfd_a, sockfd_room[room].sfd_b);
                 } else {
@@ -224,22 +227,11 @@ int main(void) {
                     printf("recieved buf: %s\n", buffer);
 
                     for (int n = 0; n < MAX_ROOMID; n++) {
-                        if (buf_socket == sockfd_room[n].sfd_a || buf_socket == sockfd_room[n].sfd_b) {
-
-                            if (buf_socket == sockfd_room[n].sfd_a) {
-
-                                send(sockfd_room[n].sfd_b, buffer, strlen(buffer), 0);
-
-                            } else if (buf_socket == sockfd_room[n].sfd_b) {
-
-                                send(sockfd_room[n].sfd_a, buffer, strlen(buffer), 0);
-
-                            }
-
-                            break;
-                        }
+                        if (buf_socket == sockfd_room[n].sfd_a)
+                            { send(sockfd_room[n].sfd_b, buffer, strlen(buffer), 0); break; }
+                        else if (buf_socket == sockfd_room[n].sfd_b)
+                            { send(sockfd_room[n].sfd_a, buffer, strlen(buffer), 0); break; }
                     }
-
                 }
             }
         }
