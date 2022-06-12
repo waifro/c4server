@@ -1,6 +1,7 @@
 #ifdef _WIN32
     #include <winsock2.h> //ws2_32
     #include <windows.h>
+    #define socklen_t int
 #else // _UNIX
 
     #include <netinet/in.h>
@@ -81,7 +82,7 @@ int main(void) {
         client_socklist[i] = 0;
 
     fd_set sets_fd;
-    int sockaddr_size = sizeof(struct sockaddr);
+    socklen_t sockaddr_size = sizeof(struct sockaddr);
     struct timeval timeout = {0, 0};
 
     int roomId = 0;
