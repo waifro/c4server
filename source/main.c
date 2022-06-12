@@ -188,6 +188,7 @@ int main(void) {
 
             // if an old connection triggered
             if (FD_ISSET(buf_socket, &sets_fd)) {
+                printf("detected socket\n");
 
                 // lost connection (?)
                 if (read(buf_socket, buffer, 255) == -1) {
@@ -213,7 +214,6 @@ int main(void) {
                     else printf("roomId %d[%d:%d]\n", room, sockfd_room[room].sfd_a, sockfd_room[room].sfd_b);
                 } else {
 
-                    printf("buf [%s]\n", buffer);
 
                     for (int n = 0; n < MAX_ROOMID; n++) {
                         if (buf_socket == sockfd_room[n].sfd_a || buf_socket == sockfd_room[n].sfd_b) {
