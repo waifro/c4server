@@ -49,6 +49,12 @@ int main(void) {
         exit(0);
     }
 
+    int opt = 1;
+    if (setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (void*)&opt, sizeof(opt)) != 0) {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(PORT);
