@@ -125,7 +125,7 @@ int main(void) {
 
         result = select(max_socket + 1, &sets_fd, NULL, NULL, &timeout);
         if (result == -1) {
-            printf("select: %s\n", strerror(errno));
+            printf("select: %s, %d\n", strerror(errno), pp4m_NET_RecieveError());
             exit(0);
         }
 
