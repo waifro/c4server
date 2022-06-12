@@ -127,7 +127,7 @@ int main(void) {
 
             new_socket = accept(master_socket, (struct sockaddr*)&addr, &sockaddr_size);
             if (new_socket == -1) {
-                printf("accept: %s, %d\n", strerror(errno), WSAGetLastError());
+                printf("accept: %s, %d\n", strerror(errno), pp4m_NET_RecieveError());
                 exit(0);
             }
 
