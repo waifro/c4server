@@ -216,11 +216,11 @@ int main(void) {
 
                             if (buf_socket == sockfd_room[n].sfd_a) {
 
-                                send(sockfd_room[n].sfd_b, buf, strlen(buf), 0);
+                                send(sockfd_room[n].sfd_b, buffer, strlen(buffer), 0);
 
                             } else if (buf_socket == sockfd_room[n].sfd_b) {
 
-                                send(sockfd_room[n].sfd_a, buf, strlen(buf), 0);
+                                send(sockfd_room[n].sfd_a, buffer, strlen(buffer), 0);
 
                             }
 
@@ -228,7 +228,6 @@ int main(void) {
                         }
                     }
 
-                    send
                 }
             }
         }
