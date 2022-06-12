@@ -123,7 +123,7 @@ int main(void) {
 
 
 
-        result = select(master_socket + 1, &sets_fd, NULL, NULL, &timeout);
+        result = select(max_socket + 1, &sets_fd, NULL, NULL, &timeout);
         if (result == -1) {
             printf("select: %s\n", strerror(errno));
             exit(0);
@@ -190,7 +190,8 @@ int main(void) {
 
         // update state of other sockets
         for (int i = 0; i < MAX_CLIENTS; i++) {
-            buf_socket = client_socklist[i];
+            if (client_socklist[i] != 0)
+                buf_socket = client_socklist[i];
 
             // if an old connection triggered
             if (FD_ISSET(buf_socket, &sets_fd)) {
