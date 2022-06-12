@@ -103,7 +103,8 @@ int main(void) {
         max_socket = master_socket;
 
         for (int i = 0; i < MAX_CLIENTS; i++) {
-            buf_socket = client_socklist[i];
+            if (client_socklist[i] != 0)
+                buf_socket = client_socklist[i];
 
             // if valid socket descriptor then add to read list
             if (buf_socket > 0)
@@ -213,7 +214,7 @@ int main(void) {
                 } else {
 
                     printf("buf [%s]\n", buffer);
-                    
+
                     for (int n = 0; n < MAX_ROOMID; n++) {
                         if (buf_socket == sockfd_room[n].sfd_a || buf_socket == sockfd_room[n].sfd_b) {
 
