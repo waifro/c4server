@@ -85,7 +85,6 @@ int main(void) {
     socklen_t sockaddr_size = sizeof(struct sockaddr);
     struct timeval timeout = {0, 0};
 
-    int roomId = 0;
     pair_sockfd_t sockfd_room[MAX_ROOMID];
 
     for (int i = 0; i < MAX_ROOMID; i++) {
