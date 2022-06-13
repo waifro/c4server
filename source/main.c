@@ -249,7 +249,7 @@ int main(void) {
             if (FD_ISSET(buf_socket, &sets_fd)) {
 
                 // lost connection (?)
-                if (read(buf_socket, buffer, 255) < 0) {
+                if (recv(buf_socket, buffer, 255, MSG_WAITALL) < 0) {
                     getpeername(buf_socket, (struct sockaddr*)&addr, &sockaddr_size);
 
                     printf("client discnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
