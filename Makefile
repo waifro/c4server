@@ -5,4 +5,4 @@ DEP_PP4M := source/pp4m/pp4m_io.c source/pp4m/pp4m_net.c #source/pp4m/pp4m.c  so
 OUTPUT := $(notdir $(CURDIR))
 
 all :	$(SOURCE) $(DEP_PP4M)
-	gcc $(SOURCE) $(DEP_PP4M) -Wall -Wextra -o $(OUTPUT)
+	gcc $(SOURCE) $(DEP_PP4M) -lws2_32 -Wall -Wextra -o $(OUTPUT)

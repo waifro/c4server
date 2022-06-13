@@ -28,11 +28,12 @@
 #define MAX_LOCAL MAX_CLIENTS/2
 
 typedef enum {
-    AVAIL = 0,
-    FULL = 1,
-    BUSY = 2,
-    BLOCKED = 3
-} ROOM_STATUS;
+    LB_AVAIL = 0,
+    LB_FULL = 1,
+    LB_BUSY = 2,
+    LB_ERROR = 3,
+    LB_BLOCKED = 4
+} LOBBY_STATUS;
 
 // this struct will be used to join two incoming connections to compete the game
 typedef struct {
@@ -41,66 +42,65 @@ typedef struct {
 
 typedef struct {
     pair_sockfd_t pair;
-    ROOM_STATUS status;
-} room_cell;
+    LOBBY_STATUS status;
+} net_lobby;
 
 
 int genval(int max) {
-    srand(time(NULL));
+    //srand(time(NULL));
     return (rand() % max);
 }
 
-int init_roompair_randpl(room_cell *local, const char *fen) {
+int init_roompair_randpl(net_lobby *lobby, char *fen) {
 
     int val = genval(100);
     char buf[256];
+    sprintf(buf, "w %s", fen);
 
     if (val < 50) {
-        sprintf(buf, "%c %s", 'w', fen);
-        send(local->pair.sfd_a, buf, strlen(buf), 0);
-        sprintf(buf, "%c %s", 'b', fen);
-        send(local->pair.sfd_b, buf, strlen(buf), 0);
+        send(lobby->pair.sfd_a, buf, strlen(buf), 0); buf[0] = 'b';
+        send(lobby->pair.sfd_b, buf, strlen(buf), 0);
     } else {
-        printf(buf, "%c %s", 'w', fen);
-        send(local->pair.sfd_b, buf, strlen(buf), 0);
-        sprintf(buf, "%c %s", 'b', fen);
-        send(local->pair.sfd_a, buf, strlen(buf), 0);
+        send(lobby->pair.sfd_b, buf, strlen(buf), 0); buf[0] = 'b';
+        send(lobby->pair.sfd_a, buf, strlen(buf), 0);
     }
 
-    local->status = BUSY;
+    lobby->status = LB_BUSY;
 
     return 0;
 }
 
-int fill_roompair(room_cell *local, int socket) {
+int fill_roompair(net_lobby *lobby, int socket) {
     int result = -1;
 
-    if (local->pair.sfd_a == 0) {
-        local->pair.sfd_a = socket;
+    if (lobby->pair.sfd_a == 0) {
+        lobby->pair.sfd_a = socket;
 
-        if (local->pair.sfd_b > 0)
-            local->status = FULL;
+        if (lobby->pair.sfd_b > 0)
+            lobby->status = LB_FULL;
         result += 1;
-    } else if (local->pair.sfd_b == 0) {
-        local->pair.sfd_b = socket;
+    } else if (lobby->pair.sfd_b == 0) {
+        lobby->pair.sfd_b = socket;
 
-        if (local->pair.sfd_a > 0)
-            local->status = FULL;
+        if (lobby->pair.sfd_a > 0)
+            lobby->status = LB_FULL;
         result += 1;
     }
 
     return result;
 }
 
-int update_roompair(room_cell *local, int socket, char *buf) {
+int update_roompair(net_lobby *lobby, int socket, char *buf) {
     if (socket < 1) return -1;
 
+    printf("update_lobbypair: %d\n", lobby->status);
+
     int result = -1;
-    if (socket == local->pair.sfd_a) {
-        send(local->pair.sfd_a, buf, sizeof(buf), 0);
+    if (socket == lobby->pair.sfd_a) {
+        send(lobby->pair.sfd_b, buf, strlen(buf), 0);
         result++;
-    } else if (socket == local->pair.sfd_b) {
-        send(local->pair.sfd_b, buf, sizeof(buf), 0);
+    } else if (socket == lobby->pair.sfd_b) {
+        send(lobby->pair.sfd_a, buf, strlen(buf), 0);
         result++;
     }
 
@@ -142,7 +142,7 @@ int main(void) {
 
     printf("c4server ready\n");
 
-    const char *fen_standard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
+    char *fen_standard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
 
     char buffer[256];
 
@@ -159,12 +159,12 @@ int main(void) {
     socklen_t sockaddr_size = sizeof(struct sockaddr);
     struct timeval timeout = {0, 0};
 
-    room_cell local[MAX_LOCAL];
+    net_lobby lobby[MAX_LOCAL];
 
     for (int i = 0; i < MAX_LOCAL; i++) {
-        local[i].pair.sfd_a = 0;
-        local[i].pair.sfd_b = 0;
-        local[i].status = AVAIL;
+        lobby[i].pair.sfd_a = 0;
+        lobby[i].pair.sfd_b = 0;
+        lobby[i].status = LB_AVAIL;
     }
 
 
@@ -178,16 +178,14 @@ int main(void) {
         max_socket = master_socket;
 
         for (int i = 0; i < MAX_CLIENTS; i++) {
-            if (client_socklist[i] != 0)
-                buf_socket = client_socklist[i];
 
             // if valid socket descriptor then add to read list
-            if (buf_socket > 0)
-                FD_SET(buf_socket, &sets_fd);
+            if (client_socklist[i] > 0)
+                FD_SET(client_socklist[i], &sets_fd);
 
             //set highest file descriptor number, need it for the select() function
-            if(buf_socket > max_socket)
-                max_socket = buf_socket;
+            if(client_socklist[i] > max_socket)
+                max_socket = client_socklist[i];
         }
 
 
@@ -222,19 +220,19 @@ int main(void) {
 
                 int room = 0;
                 for (room = 0; room < MAX_LOCAL; room++) {
-                    if (local[room].status == AVAIL) {
-                        fill_roompair(&local[room], new_socket);
+                    if (lobby[room].status == LB_AVAIL) {
+                        fill_roompair(&lobby[room], new_socket);
                         break;
                     }
                 }
 
 
                 if (room >= MAX_LOCAL) printf("\n");
-                else printf("| assigned roomId: %d[%d:%d]\n", room, local[room].pair.sfd_a, local[room].pair.sfd_b);
+                else printf("| assigned roomId: %d[%d:%d]\n", room, lobby[room].pair.sfd_a, lobby[room].pair.sfd_b);
 
                 for (room = 0; room < MAX_LOCAL; room++) {
-                    if (local[room].status == FULL) {
-                        init_roompair_randpl(&local[room], fen_standard);
+                    if (lobby[room].status == LB_FULL) {
+                        init_roompair_randpl(&lobby[room], fen_standard);
                         break;
                     }
                 }
@@ -243,8 +241,9 @@ int main(void) {
 
         // update state of other sockets
         for (int i = 0; i < MAX_CLIENTS; i++) {
-            if (client_socklist[i] != 0)
-                buf_socket = client_socklist[i];
+            if (client_socklist[i] == 0) continue;
+
+            buf_socket = client_socklist[i];
 
             // if an old connection triggered
             if (FD_ISSET(buf_socket, &sets_fd)) {
@@ -257,27 +256,34 @@ int main(void) {
 
                     int room = 0;
                     for (room = 0; room < MAX_LOCAL; room++) {
-                        if (local[room].pair.sfd_a == buf_socket) {
-                            local[room].pair.sfd_a = 0;
-                            break;
-                        } else if (local[room].pair.sfd_b == buf_socket) {
-                            local[room].pair.sfd_b = 0;
+                        if (buf_socket == lobby[room].pair.sfd_a || buf_socket == lobby[room].pair.sfd_b) {
+
+                            if (buf_socket == lobby[room].pair.sfd_a) {
+                                lobby[room].pair.sfd_a = 0; lobby[room].status = LB_ERROR;
+                            } else if (buf_socket == lobby[room].pair.sfd_b) {
+                                lobby[room].pair.sfd_b = 0; lobby[room].status = LB_ERROR;
+                            }
+
+                            // room cleaned
+                            if (lobby[room].pair.sfd_a == 0 && lobby[room].pair.sfd_b == 0)
+                                lobby[room].status = LB_AVAIL;
+
                             break;
                         }
                     }
 
-                    close(buf_socket);
+                    close(client_socklist[i]);
                     client_socklist[i] = 0;
                     buf_socket = 0;
 
                     if (room >= MAX_LOCAL) printf("\n");
-                    else printf("roomId %d[%d:%d]\n", room, local[room].pair.sfd_a, local[room].pair.sfd_b);
+                    else printf("roomId %d[%d:%d]\n", room, lobby[room].pair.sfd_a, lobby[room].pair.sfd_b);
                 } else {
 
                     printf("recieved buf: %s\n", buffer);
 
                     for (int n = 0; n < MAX_LOCAL; n++)
-                        if (update_roompair(&local[n], buf_socket, buffer) != -1) break;
+                        if (update_roompair(&lobby[n], buf_socket, buffer) != -1) break;
                 }
             }
         }
