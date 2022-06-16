@@ -204,18 +204,18 @@ int main(void) {
                 exit(0);
             }
 
-            for (int i = 0; i < MAX_CLIENTS; i++)
-                if (client_socklist[i] == 0) {
-                    client_socklist[i] = new_socket;
-                    break;
-                }
-
             printf("client connect: %s:%d\t", inet_ntoa(addr.sin_addr), htons(addr.sin_port));
 
             if (connected > MAX_CLIENTS) {
                 printf("[%d of %d] | server full, ignored\n", --connected, MAX_CLIENTS);
             } else {
-
+				
+				for (int i = 0; i < MAX_CLIENTS; i++)
+                if (client_socklist[i] == 0) {
+                    client_socklist[i] = new_socket;
+                    break;
+                }
+				
                 printf("[%d of %d] ", ++connected, MAX_CLIENTS);
 
                 int room = 0;
@@ -242,16 +242,17 @@ int main(void) {
         // update state of other sockets
         for (int i = 0; i < MAX_CLIENTS; i++) {
             if (client_socklist[i] == 0) continue;
-
             buf_socket = client_socklist[i];
 
             // if an old connection triggered
             if (FD_ISSET(buf_socket, &sets_fd)) {
 
                 // lost connection (?)
-                if (recv(buf_socket, buffer, 255, MSG_WAITALL) < 0) {
+                if (recv(buf_socket, buffer, 255, 0) < 0) {
                     getpeername(buf_socket, (struct sockaddr*)&addr, &sockaddr_size);
-
+					
+					printf("buf: %s, errror\n", buffer);
+					
                     printf("client discnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
 
                     int room = 0;
@@ -272,9 +273,8 @@ int main(void) {
                         }
                     }
 
-                    close(client_socklist[i]);
+                    close(buf_socket);
                     client_socklist[i] = 0;
-                    buf_socket = 0;
 
                     if (room >= MAX_LOCAL) printf("\n");
                     else printf("roomId %d[%d:%d]\n", room, lobby[room].pair.sfd_a, lobby[room].pair.sfd_b);
