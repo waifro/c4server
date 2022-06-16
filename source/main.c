@@ -142,7 +142,7 @@ int main(void) {
 
     printf("c4server ready\n");
 
-    char *fen_standard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
+    char *fen_standard = "5k2/P4p2/4p2p/8/6p2/5P2/2K2p2/8 w - - 0 0";
 
     char buffer[256];
 
