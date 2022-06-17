@@ -19,21 +19,125 @@
 #include <string.h>
 #include <time.h>
 #include <sys/time.h> // fd_set readfds;
+#include <getopt.h>
 
 #include "pp4m/pp4m_io.h"
 #include "pp4m/pp4m_net.h"
 
 #include "config.h"
 
+cli_t       glo_client_list[MAX_CLIENTS];
+net_lobby   glo_lobby[MAX_LOBBY];
 
-int clcode_REQ_redirect(cli_t *client, int status) {
-    int result = 0;
+void init_lobby_list(net_lobby *lobby_list, int max) {
+    for (int i = 0; i < max; i++) {
+        lobby_list[i].pair.cli_a = NULL;
+        lobby_list[i].pair.cli_b = NULL;
+        lobby_list[i].status = LB_AVAIL;
+    }
+}
+
+void init_client_list(cli_t *client_list, int max) {
+    for (int i = 0; i < max; i++) {
+        client_list[i].socket = 0;
+        client_list[i].status = CL_STATE_IDLE;
+    }
+}
+
+
+int lobby_checkroom_avail(int room) {
+    if (glo_lobby[room].status == LB_AVAIL) {
+        if (*glo_lobby[room].pair.cli_a == 0) return 1;
+        else if (*glo_lobby[room].pair.cli_b == 0) return 2;
+    } else return -1;
+}
+
+int lobby_checkroom_isfull(int room) {
+    if (glo_lobby[room].status == LB_AVAIL) {
+        if (*glo_lobby[room].pair.cli_a != 0 && *glo_lobby[room].pair.cli_b != 0) return 1;
+    } else return -1;
+}
+
+int lobby_checkroom_isready(int room) {
+    if (glo_lobby[room].status == LB_FULL) return 1;
+    else return -1;
+}
+
+int lobby_checkroom_isbusy(int room) {
+    if (glo_lobby[room].status == LB_BUSY) return 1;
+    else return -1;
+}
+
+int lobby_assign_cli(cli_t *client) {
+    int result = -1;
+
+    for (int i = 0; i < MAX_LOBBY; i++) {
+        result = lobby_checkroom_avail(i);
+        if (result == -1) continue;
+
+        // assign the lobby
+        if (result == 1) glo_lobby[i].pair.cli_a = client;
+        else if (result == 2) glo_lobby[i].pair.cli_b = client;
+
+        // target the lobby
+        if (lobby_checkroom_isfull(i) == 1) glo_lobby[i].status = LB_FULL;
+        break;
+    }
+
+    return 0;
+}
+
+int lobby_random_start(int room, char *fen) {
+    int result = -1;
+
+    char buf[256];
+    sprintf(buf, "%d w %s", SV_POST_LOBBY_START, fen);
+
+    if (generate_val(100) < 50) {
+        result = send(*glo_lobby[room].pair.cli_a, buf, strlen(buf) + 1, 0);
+        if (result == -1) { perror("lobby_random_start 1"); return -1; }
+        buf[0] = 'b';
+        result = send(*glo_lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
+        if (result == -1) { perror("lobby_random_start 2"); return -1; }
+    } else {
+        send(*glo_lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
+        if (result == -1) { perror("lobby_random_start 1"); return -1; }
+        buf[0] = 'b';
+        send(*glo_lobby[room].pair.cli_a, buf, strlen(buf) + 1, 0);
+        if (result == -1) { perror("lobby_random_start 2"); return -1; }
+    }
+
+    glo_lobby[room].status = LB_BUSY;
+
+    return result;
+}
+
+int lobby_checkroom_cli(cli_t *socket, int room) {
+    if (glo_lobby[room].pair.cli_a == socket) return 1;
+    else if (glo_lobby[room].pair.cli_b == socket) return 2;
+    else return -1;
+}
+
+int lobby_redirect_buf(cli_t *client, int room, char *buffer) {
+    int result = -1;
+
+    result = lobby_checkroom_cli(client, room);
+    if (result == -1) return -2;
+    else if (result == 1) result = send(glo_lobby[room].pair.cli_b->socket, buf, strlen(buf) + 1, 0);
+    else if (result == 2) result = send(glo_lobby[room].pair.cli_a->socket, buf, strlen(buf) + 1, 0);
+
+    return result;
+}
+
+int clcode_REQ_redirect(int code, cli_t *client, int room, char *buffer) {
+    int result = -1;
 
     switch(status) {
         case CL_REQ_ASSIGN_LOBBY:
+            result = lobby_assign_cli(client);
             break;
-
-        case CL_REQ_TOTAL_USERS:
+            
+        case CL_REQ_LOBBY_NICKNAME:
             break;
 
         default:
@@ -43,11 +147,19 @@ int clcode_REQ_redirect(cli_t *client, int status) {
     return result;
 }
 
-int clcode_POST_redirect(cli_t *client, int status) {
+int clcode_POST_redirect(int code, cli_t *client, int room, char *buffer) {
     int result = 0;
 
-    switch(status) {
+    switch(code) {
         case CL_POST_LOBBY_LEAVE:
+            break;
+
+        case CL_POST_LOBBY_MOVE:
+            result = lobby_redirect_buf(client, room, buffer);
+            break;
+
+        case CL_POST_LOBBY_MESG:
+            result = lobby_redirect_buf(client, room, buffer);
             break;
 
         default:
@@ -55,6 +167,38 @@ int clcode_POST_redirect(cli_t *client, int status) {
     }
 
     return result;
+}
+
+int svcode_REQ_redirect(int code, cli_t *client, int room, char *buffer) {
+    int result = -1;
+
+    switch(status) {
+        case SV_REQ_NICKNAME:
+            break;
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+int svcode_POST_redirect(int code, cli_t *client, int room, char *buffer) {
+    int result = -1;
+
+    switch(status) {
+        case SV_POST_LOBBY_START:
+            break;
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+int clcode_status_STATE(int status) {
+    return (status > CL_STATE_START && status < CL_STATE_END ? 0 : -1);
 }
 
 int clcode_status_REQ(int status) {
@@ -65,16 +209,39 @@ int clcode_status_POST(int status) {
     return (status > CL_POST_START && status < CL_POST_END ? 0 : -1);
 }
 
-int clcode_redirect(cli_t *client, int status) {
+int svcode_status_STATE(int status) {
+    return (status > SV_STATE_START && status < SV_STATE_END ? 0 : -1);
+}
+
+int svcode_status_REQ(int status) {
+    return (status > SV_REQ_START && status < SV_REQ_END ? 0 : -1);
+}
+
+int svcode_status_POST(int status) {
+    return (status > SV_POST_START && status < SV_POST_END ? 0 : -1);
+}
+
+int clcode_redirect(int code, cli_t *client, int room, char *buffer) {
     int result = 0;
 
-    if (clcode_status_REQ(status) == 0) result = clcode_REQ_redirect(client, status);
-    else if (clcode_status_POST(status) == 0) result = clcode_POST_redirect(client, status);
+    if (clcode_status_STATE(code) == 0) result = 0; // im not sure what to do with this and cli_t.status
+    else if (clcode_status_REQ(code) == 0) result = clcode_REQ_redirect(code, client, room, buffer);
+    else if (clcode_status_POST(code) == 0) result = clcode_POST_redirect(code, client, room, buffer);
 
     return result;
 }
 
-cli_t accept_client(int master_socket, struct sockaddr_in *addr) {
+int svcode_redirect(int code, cli_t *client, int room, char *buffer) {
+    int result = 0;
+
+    if (svcode_status_STATE(code) == 0) result = 0; // im not sure what to do with this and cli_t.status
+    else if (svcode_status_REQ(code) == 0) result = svcode_REQ_redirect(code, client, room, buffer);
+    else if (svcode_status_POST(code) == 0) result = svcode_POST_redirect(code, client, room, buffer);
+
+    return result;
+}
+
+cli_t client_accept(int master_socket, struct sockaddr_in *addr) {
 
     cli_t client = {0, 0};
     int new_socket = -1;
@@ -90,7 +257,7 @@ cli_t accept_client(int master_socket, struct sockaddr_in *addr) {
 
 void client_disconnect(cli_t *client) {
     *client->socket = 0;
-    *client->status = 0;
+    *client->status = CL_STATE_IDLE;
     return;
 }
 
@@ -107,7 +274,7 @@ int handle_client(cli_t *client) {
     result = verify_mesg_recv(mesg);
     if (result < 0) return -1;
 
-    result = parse_mesg_recv(mesg);
+    result = retrieve_code(mesg);
     if (result < 0) return -1;
 
     clcode_redirect(client, result);
@@ -115,9 +282,9 @@ int handle_client(cli_t *client) {
     return 0;
 }
 
-int parse_mesg_recv(char *mesg) {
+int retrieve_code(char *mesg) {
 
-    int code;
+    int code = 0;
     sscanf(mesg, "%d %*s", &code);
 
     return code;
@@ -129,6 +296,11 @@ int verify_mesg_recv(char *mesg) {
     else if (strlen(mesg) > 255) return -1;
 
     return 0;
+}
+
+int generate_val(int max) {
+    //srand(time(NULL));
+    return (rand() % max);
 }
 
 /*
@@ -218,11 +390,21 @@ int assign_roompair(net_lobby *lobby, int socket) {
 }
 */
 
+const char* const short_option = "th";
+const struct option long_option[] = {
+    { "testnet", 0, NULL, 't' },
+    { "help", 1, NULL, 'h' },
+    { NULL, 0, NULL, 0 }
+};
 
-int main(void) {
+int main(int argc, char *argv[]) {
 
-    int master_socket = -1, result;
+    int master_socket = -1, result, port;
     struct sockaddr_in addr;
+
+    result = getopt_long(argc, argv, short_option, long_option, NULL);
+    if (result == -1) port = PORT_MAINNET;
+    else if (result == 't') port = PORT_TESTNET;
 
     master_socket = pp4m_NET_Init(TCP);
     if (master_socket == -1) {
@@ -238,7 +420,7 @@ int main(void) {
 
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(PORT);
+    addr.sin_port = htons(port);
 
     result = bind(master_socket, (struct sockaddr*)&addr, sizeof(addr));
     if (result == -1) {
@@ -254,7 +436,7 @@ int main(void) {
 
     printf("c4server ready\n");
 
-    char *fen_standard = "5k2/P4p2/4p2p/8/6p2/5P2/2K2p2/8 w - - 0 0";
+    char *fen_standard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
 
     char buffer[256];
 
