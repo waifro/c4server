@@ -23,28 +23,115 @@
 #include "pp4m/pp4m_io.h"
 #include "pp4m/pp4m_net.h"
 
-#define PORT 62443
-#define MAX_CLIENTS 2
-#define MAX_LOCAL MAX_CLIENTS/2
+#include "config.h"
 
-typedef enum {
-    LB_AVAIL = 0,
-    LB_FULL = 1,
-    LB_BUSY = 2,
-    LB_ERROR = 3,
-    LB_BLOCKED = 4
-} LOBBY_STATUS;
 
-// this struct will be used to join two incoming connections to compete the game
-typedef struct {
-    int sfd_a, sfd_b;   // file descriptors sockets for sending/recieving packets
-} pair_sockfd_t;
+int clcode_REQ_redirect(cli_t *client, int status) {
+    int result = 0;
 
-typedef struct {
-    pair_sockfd_t pair;
-    LOBBY_STATUS status;
-} net_lobby;
+    switch(status) {
+        case CL_REQ_ASSIGN_LOBBY:
+            break;
 
+        case CL_REQ_TOTAL_USERS:
+            break;
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+int clcode_POST_redirect(cli_t *client, int status) {
+    int result = 0;
+
+    switch(status) {
+        case CL_POST_LOBBY_LEAVE:
+            break;
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+int clcode_status_REQ(int status) {
+    return (status > CL_REQ_START && status < CL_REQ_END ? 0 : -1);
+}
+
+int clcode_status_POST(int status) {
+    return (status > CL_POST_START && status < CL_POST_END ? 0 : -1);
+}
+
+int clcode_redirect(cli_t *client, int status) {
+    int result = 0;
+
+    if (clcode_status_REQ(status) == 0) result = clcode_REQ_redirect(client, status);
+    else if (clcode_status_POST(status) == 0) result = clcode_POST_redirect(client, status);
+
+    return result;
+}
+
+cli_t accept_client(int master_socket, struct sockaddr_in *addr) {
+
+    cli_t client = {0, 0};
+    int new_socket = -1;
+    new_socket = accept(master_socket, (struct sockaddr*)addr, sizeof(addr));
+
+    if (new_socket > 0) {
+        client.socket = new_socket;
+        client.status = CL_IDLE;
+    }
+
+    return client;
+}
+
+void client_disconnect(cli_t *client) {
+    *client->socket = 0;
+    *client->status = 0;
+    return;
+}
+
+int handle_client(cli_t *client) {
+
+    char buffer[256];
+    if (recv(client->socket, buffer, 255, 0) < 0) {
+        client_disconnect(client);
+        memset(buffer, 0x00, 255);
+        return -1;
+    }
+
+    int result = 0;
+    result = verify_mesg_recv(mesg);
+    if (result < 0) return -1;
+
+    result = parse_mesg_recv(mesg);
+    if (result < 0) return -1;
+
+    clcode_redirect(client, result);
+
+    return 0;
+}
+
+int parse_mesg_recv(char *mesg) {
+
+    int code;
+    sscanf(mesg, "%d %*s", &code);
+
+    return code;
+}
+
+int verify_mesg_recv(char *mesg) {
+
+    if (strlen(mesg) < 3) return -1;
+    else if (strlen(mesg) > 255) return -1;
+
+    return 0;
+}
+
+/*
 
 int genval(int max) {
     //srand(time(NULL));
@@ -80,7 +167,7 @@ int fill_roompair(net_lobby *lobby, int socket) {
             lobby->status = LB_FULL;
         result += 1;
     } else if (lobby->pair.sfd_b == 0) {
-        lobby->pair.sfd_b = socket;
+        *lobby->pair.sfd_b->socket = socket;
 
         if (lobby->pair.sfd_a > 0)
             lobby->status = LB_FULL;
@@ -106,6 +193,31 @@ int update_roompair(net_lobby *lobby, int socket, char *buf) {
 
     return result;
 }
+
+int assign_roompair(net_lobby *lobby, int socket) {
+
+    int room = 0;
+    for (room = 0; room < MAX_LOCAL; room++) {
+        if (lobby[room].status == LB_AVAIL) {
+            fill_roompair(&lobby[room], new_socket);
+            break;
+        }
+    }
+
+    if (room >= MAX_LOCAL) printf("\n");
+    else printf("| assigned roomId: %d[%d:%d]\n", room, lobby[room].pair.sfd_a, lobby[room].pair.sfd_b);
+
+    for (room = 0; room < MAX_LOCAL; room++) {
+        if (lobby[room].status == LB_FULL) {
+            init_roompair_randpl(&lobby[room], fen_standard);
+            break;
+        }
+    }
+
+    return 0;
+}
+*/
+
 
 int main(void) {
 
@@ -209,33 +321,15 @@ int main(void) {
             if (connected > MAX_CLIENTS) {
                 printf("[%d of %d] | server full, ignored\n", --connected, MAX_CLIENTS);
             } else {
-				
+
 				for (int i = 0; i < MAX_CLIENTS; i++)
                 if (client_socklist[i] == 0) {
                     client_socklist[i] = new_socket;
                     break;
                 }
-				
+
                 printf("[%d of %d] ", ++connected, MAX_CLIENTS);
 
-                int room = 0;
-                for (room = 0; room < MAX_LOCAL; room++) {
-                    if (lobby[room].status == LB_AVAIL) {
-                        fill_roompair(&lobby[room], new_socket);
-                        break;
-                    }
-                }
-
-
-                if (room >= MAX_LOCAL) printf("\n");
-                else printf("| assigned roomId: %d[%d:%d]\n", room, lobby[room].pair.sfd_a, lobby[room].pair.sfd_b);
-
-                for (room = 0; room < MAX_LOCAL; room++) {
-                    if (lobby[room].status == LB_FULL) {
-                        init_roompair_randpl(&lobby[room], fen_standard);
-                        break;
-                    }
-                }
             }
         }
 
@@ -250,9 +344,9 @@ int main(void) {
                 // lost connection (?)
                 if (recv(buf_socket, buffer, 255, 0) < 0) {
                     getpeername(buf_socket, (struct sockaddr*)&addr, &sockaddr_size);
-					
+
 					printf("buf: %s, errror\n", buffer);
-					
+
                     printf("client discnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
 
                     int room = 0;

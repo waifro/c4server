@@ -22,6 +22,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="source/config.h" />
 		<Unit filename="source/main.c">
 			<Option compilerVar="CC" />
 		</Unit>
