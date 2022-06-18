@@ -67,6 +67,7 @@ int main(int argc, char *argv[]) {
     printf("c4server ready\n");
 
     char buffer[256];
+    socklen_t addr_size = sizeof(struct sockaddr);
 
     int connected = 0;
     int max_socket = 0;
@@ -140,7 +141,7 @@ int main(int argc, char *argv[]) {
 
                 // lost connection (?)
                 if (result == -1) {
-                    getpeername(buf_client, (struct sockaddr*)&addr, &sockaddr_size);
+                    getpeername(buf_client, (struct sockaddr*)&addr, &addr_size);
 
 					printf("client discnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
 

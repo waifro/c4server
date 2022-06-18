@@ -9,13 +9,16 @@ int lobby_checkroom_avail(int room) {
     if (glo_lobby[room].status == LB_AVAIL) {
         if (*glo_lobby[room].pair.cli_a == 0) return 1;
         else if (*glo_lobby[room].pair.cli_b == 0) return 2;
-    } else return -1;
+    }
+    
+    return -1;
 }
 
 int lobby_checkroom_isfull(int room) {
-    if (glo_lobby[room].status == LB_AVAIL) {
+    if (glo_lobby[room].status == LB_AVAIL)
         if (*glo_lobby[room].pair.cli_a != 0 && *glo_lobby[room].pair.cli_b != 0) return 1;
-    } else return -1;
+
+    return -1;
 }
 
 int lobby_checkroom_isready(int room) {
