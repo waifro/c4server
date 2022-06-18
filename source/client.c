@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "client.h"
 #include "lobby.h"
 #include "net_utils.h"

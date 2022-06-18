@@ -1,19 +1,22 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "net_utils.h"
 #include "pp4m/pp4m_net.h"
 
-int handle_client(cli_t *client) {
+int handle_client(cli_t *client, char *buffer) {
 
-    if (recv(client->socket, buffer, 255, 0) < 0) {
+    if (recv(*client, buffer, 255, 0) < 0) {
         //client_disconnect(client);
         memset(buffer, 0x00, 255);
         return -1;
     }
 
     int result = 0;
-    result = verify_mesg_recv(mesg);
+    result = verify_mesg_recv(buffer);
     if (result < 0) return -1;
 
-    result = retrieve_code(mesg);
+    result = retrieve_code(buffer);
     if (result < 0) return -1;
 
     //clcode_redirect(result, client, room, buffer);
@@ -57,21 +60,13 @@ void init_lobby_list(net_lobby *lobby_list, int max) {
 }
 
 cli_t client_accept(int master_socket, struct sockaddr_in *addr) {
-
-    cli_t client = {0, 0};
-    int new_socket = -1;
-    new_socket = accept(master_socket, (struct sockaddr*)addr, sizeof(addr));
-
-    if (new_socket > 0) {
-        client.socket = new_socket;
-        client.status = CL_IDLE;
-    }
-
+    cli_t new_client = -1;
+    socklen_t sockaddr_size = sizeof(struct sockaddr);
+    new_socket = accept(master_socket, (struct sockaddr*)addr, &sockaddr_size);
     return client;
 }
 
 void client_disconnect(cli_t *client) {
-    *client->socket = 0;
-    *client->status = 0;
+    *client = 0;
     return;
 }

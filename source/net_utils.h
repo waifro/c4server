@@ -1,6 +1,8 @@
 #ifndef NET_UTILS_H
 #define NET_UTILS_H
 
+#include "pp4m/pp4m_net.h"
+
 #define MAX_CLIENTS     2
 #define MAX_LOBBY       MAX_CLIENTS/2
 
@@ -81,7 +83,7 @@ typedef enum {
 
 } SERVER_CMD;
 
-int handle_client(cli_t *client);
+int handle_client(cli_t *client, char *buffer);
 int retrieve_code(char *mesg);
 int verify_mesg_recv(char *mesg);
 int generate_val(int max);

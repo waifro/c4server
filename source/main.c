@@ -76,7 +76,6 @@ int main(int argc, char *argv[]) {
     init_client_list(glo_client_list, MAX_CLIENTS);
 
     fd_set sets_fd;
-    socklen_t sockaddr_size = sizeof(struct sockaddr);
     struct timeval timeout = {0, 0};
 
     init_lobby_list(glo_lobby, MAX_LOBBY);
@@ -137,7 +136,7 @@ int main(int argc, char *argv[]) {
             // if an old connection triggered
             if (FD_ISSET(buf_client, &sets_fd)) {
 
-                result = handle_client(&buf_client);
+                result = handle_client(&buf_client, buffer);
 
                 // lost connection (?)
                 if (result == -1) {
