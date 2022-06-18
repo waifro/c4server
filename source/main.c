@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
                     glo_client_list[i] = 0;
 
                     if (room >= MAX_LOBBY) printf("\n");
-                    else printf("roomId %d[%x:%x]\n", room, glo_lobby[room].pair.cli_a, glo_lobby[room].pair.cli_b);
+                    else printf("roomId %d[%p:%p]\n", room, glo_lobby[room].pair.cli_a, glo_lobby[room].pair.cli_b);
 
                 } else if (clcode_status_LOBBY(result) == 0) {
 
@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
                     }
 
                     if (room == -1) {
-                        printf("error, couldn't find client on lobbies: %d, [%s]\n", buf_client.socket, buffer);
+                        printf("error, couldn't find client on lobbies: %d, [%s]\n", buf_client, buffer);
                         continue;
                     }
 
