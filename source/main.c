@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    printf("c4server ready\n");
+    printf("c4server ready: port %d\n", port);
 
     char buffer[256];
     socklen_t addr_size = sizeof(struct sockaddr);
