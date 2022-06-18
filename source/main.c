@@ -15,6 +15,7 @@
 #include "server.h"
 #include "client.h"
 #include "lobby.h"
+#include "global.h"
 
 const char* const short_option = "th";
 const struct option long_option[] = {

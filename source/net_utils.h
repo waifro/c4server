@@ -4,6 +4,14 @@
 #define MAX_CLIENTS     2
 #define MAX_LOBBY       MAX_CLIENTS/2
 
+typedef enum {
+    LB_AVAIL = 0,
+    LB_FULL = 1,
+    LB_BUSY = 2,
+    LB_ERROR = 3,
+    LB_BLOCKED = 4
+} LOBBY_STATUS;
+
 // this struct will be used to join two incoming connections to compete the game
 typedef struct {
     int socket;
@@ -15,17 +23,9 @@ typedef struct {
 } pair_cli_t;
 
 typedef struct {
-    pair_sockfd_t pair;
+    pair_cli_t pair;
     LOBBY_STATUS status;
 } net_lobby;
-
-typedef enum {
-    LB_AVAIL = 0,
-    LB_FULL = 1,
-    LB_BUSY = 2,
-    LB_ERROR = 3,
-    LB_BLOCKED = 4
-} LOBBY_STATUS;
 
 // client command codes which will be sent to the server/lobby
 typedef enum {
