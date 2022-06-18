@@ -72,13 +72,13 @@ int main(int argc, char *argv[]) {
 
     cli_t buf_client = {0, 0};
 
-    init_client_list(glo_client_list);
+    init_client_list(glo_client_list, MAX_CLIENTS);
 
     fd_set sets_fd;
     socklen_t sockaddr_size = sizeof(struct sockaddr);
     struct timeval timeout = {0, 0};
 
-    init_lobby_list(glo_lobby);
+    init_lobby_list(glo_lobby, MAX_LOBBY);
 
     printf("c4server starting... idle\n\n");
 
@@ -92,12 +92,12 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < MAX_CLIENTS; i++) {
 
             // if valid socket descriptor then add to read list
-            if (glo_client_list[i] > 0)
-                FD_SET(glo_client_list[i], &sets_fd);
+            if (&glo_client_list[i] != NULL)
+                FD_SET(glo_client_list[i].socket, &sets_fd);
 
             //set highest file descriptor number, need it for the select() function
-            if(glo_client_list[i] > max_socket)
-                max_socket = glo_client_list[i];
+            if(glo_client_list[i].socket > max_socket)
+                max_socket = glo_client_list[i].socket;
         }
 
 
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
             } else {
 
                 for (int i = 0; i < MAX_CLIENTS; i++)
-                if (glo_client_list[i] == 0) {
+                if (&glo_client_list[i] == NULL) {
                     glo_client_list[i] = client;
                     break;
                 }
@@ -146,7 +146,7 @@ int main(int argc, char *argv[]) {
 
                     int room = lobby_updateroom_cli_left(&buf_client);
 
-                    client_disconnect(glo_client_list[i]);
+                    client_disconnect(&glo_client_list[i]);
                     glo_client_list[i] = NULL;
 
                     if (room >= MAX_LOBBY) printf("\n");
