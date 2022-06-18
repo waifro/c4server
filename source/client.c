@@ -62,7 +62,7 @@ int clcode_LOBBY_REQ_redirect(int code, cli_t *client, int room, char *buffer) {
     (void)code; (void)client; (void)room; (void)buffer;
     int result = -1;
 
-    switch(status) {
+    switch(code) {
 
         case CL_REQ_LOBBY_NICKNAME:
             break;
@@ -78,7 +78,7 @@ int clcode_LOBBY_POST_redirect(int code, cli_t *client, int room, char *buffer) 
     (void)code; (void)client; (void)room; (void)buffer;
     int result = -1;
 
-    switch(status) {
+    switch(code) {
         case CL_POST_LOBBY_LEAVE:
             //result = lobby_assign_cli(client);
             break;

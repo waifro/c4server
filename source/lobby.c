@@ -83,16 +83,16 @@ int lobby_updateroom_cli_left(cli_t *client) {
     int room = -1;
 
     for (room = 0; room < MAX_LOBBY; room++) {
-        result = lobby_checkroom_cli(client);
+        result = lobby_checkroom_cli(client, room);
         if (result == -1) continue;
 
-        if (result == 1) glo_lobby[room].pair.sfd_a = NULL;
-        else if (result == 2) glo_lobby[room].pair.sfd_b = NULL;
+        if (result == 1) glo_lobby[room].pair.cli_a = NULL;
+        else if (result == 2) glo_lobby[room].pair.cli_b = NULL;
 
         glo_lobby[room].status = LB_ERROR;
 
         // room cleaned
-        if (glo_lobby[room].pair.sfd_a == NULL && glo_lobby[room].pair.sfd_b == NULL)
+        if (glo_lobby[room].pair.cli_a == NULL && glo_lobby[room].pair.cli_b == NULL)
             glo_lobby[room].status = LB_AVAIL;
 
         break;
@@ -106,8 +106,8 @@ int lobby_redirect_buf(cli_t *client, int room, char *buffer) {
 
     result = lobby_checkroom_cli(client, room);
     if (result == -1) return -2;
-    else if (result == 1) result = send(*glo_lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
-    else if (result == 2) result = send(*glo_lobby[room].pair.cli_a, buf, strlen(buf) + 1, 0);
+    else if (result == 1) result = send(*glo_lobby[room].pair.cli_b, buffer, strlen(buffer) + 1, 0);
+    else if (result == 2) result = send(*glo_lobby[room].pair.cli_a, buffer, strlen(buffer) + 1, 0);
 
     return result;
 }

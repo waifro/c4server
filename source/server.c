@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "server.h"
+#include "lobby.h"
 #include "net_utils.h"
 
 int svcode_status_STATE(int status) {
@@ -25,6 +26,7 @@ int svcode_status_LOBBY_POST(int status) {
 }
 
 int svcode_REQ_redirect(int code, cli_t *client, int room, char *buffer) {
+    (void)code; (void)client; (void)room; (void)buffer;
     int result = -1;
 
     switch(status) {
@@ -39,6 +41,7 @@ int svcode_REQ_redirect(int code, cli_t *client, int room, char *buffer) {
 }
 
 int svcode_POST_redirect(int code, cli_t *client, int room, char *buffer) {
+    (void)code; (void)client; (void)room; (void)buffer;
     int result = -1;
 
     switch(status) {
