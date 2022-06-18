@@ -9,4 +9,6 @@
 cli_t   glo_client_list[MAX_CLIENTS];
 net_lobby   glo_lobby[MAX_LOBBY];
 
+char *fen_standard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
+
 #endif

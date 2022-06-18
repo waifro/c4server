@@ -63,8 +63,6 @@ int main(int argc, char *argv[]) {
 
     printf("c4server ready\n");
 
-    char *fen_standard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
-
     char buffer[256];
 
     int connected = 0;
@@ -130,7 +128,7 @@ int main(int argc, char *argv[]) {
 
         // update state of other sockets
         for (int i = 0; i < MAX_CLIENTS; i++) {
-            if (glo_client_list[i] == NULL) continue;
+            if (&glo_client_list[i] == NULL) continue;
             buf_client = glo_client_list[i];
 
             // if an old connection triggered
@@ -147,10 +145,10 @@ int main(int argc, char *argv[]) {
                     int room = lobby_updateroom_cli_left(&buf_client);
 
                     client_disconnect(&glo_client_list[i]);
-                    glo_client_list[i] = NULL;
+                    &glo_client_list[i] = NULL;
 
                     if (room >= MAX_LOBBY) printf("\n");
-                    else printf("roomId %d[%x:%x]\n", room, glo_lobby[room].pair.sfd_a, lobby[room].pair.sfd_b);
+                    else printf("roomId %d[%x:%x]\n", room, glo_lobby[room].pair.cli_a, lobby[room].pair.cli_b);
 
                 } else if (clcode_status_LOBBY(result) == 0) {
 
