@@ -5,31 +5,31 @@
 #include "lobby.h"
 #include "net_utils.h"
 
-int svcode_status_STATE(int status) {
-    return (status > SV_STATE_START && status < SV_STATE_END ? 0 : -1);
+int svcode_status_STATE(int code) {
+    return (code > SV_STATE_START && code < SV_STATE_END ? 0 : -1);
 }
 
-int svcode_status_REQ(int status) {
-    return (status > SV_REQ_START && status < SV_REQ_END ? 0 : -1);
+int svcode_status_REQ(int code) {
+    return (code > SV_REQ_START && code < SV_REQ_END ? 0 : -1);
 }
 
-int svcode_status_LOBBY_REQ(int status) {
-    return (status > SV_REQ_LOBBY_START && status < SV_REQ_LOBBY_END ? 0 : -1);
+int svcode_status_LOBBY_REQ(int code) {
+    return (code > SV_REQ_LOBBY_START && code < SV_REQ_LOBBY_END ? 0 : -1);
 }
 
-int svcode_status_POST(int status) {
-    return (status > SV_POST_START && status < SV_POST_END ? 0 : -1);
+int svcode_status_POST(int code) {
+    return (code > SV_POST_START && code < SV_POST_END ? 0 : -1);
 }
 
-int svcode_status_LOBBY_POST(int status) {
-    return (status > SV_POST_LOBBY_START && status < SV_POST_LOBBY_END ? 0 : -1);
+int svcode_status_LOBBY_POST(int code) {
+    return (code > SV_POST_LOBBY_START && code < SV_POST_LOBBY_END ? 0 : -1);
 }
 
 int svcode_REQ_redirect(int code, cli_t *client, int room, char *buffer) {
     (void)code; (void)client; (void)room; (void)buffer;
     int result = -1;
 
-    switch(status) {
+    switch(code) {
         case SV_REQ_NICKNAME:
             break;
 
@@ -44,7 +44,7 @@ int svcode_POST_redirect(int code, cli_t *client, int room, char *buffer) {
     (void)code; (void)client; (void)room; (void)buffer;
     int result = -1;
 
-    switch(status) {
+    switch(code) {
         case SV_POST_LOBBY_START:
             result = lobby_random_start(room, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0");
             break;
