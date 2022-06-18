@@ -98,7 +98,8 @@ int pp4m_NET_GetLocalAddress(int socket, char *destination) {
     result = getsockname(socket, (struct sockaddr*)&localAddress, &addressLength);
     if (result == -1) return -1;
 
-    strcpy(destination, inet_ntoa(localAddress.sin_addr));
+    sprintf(destination, "%s", inet_ntoa(localAddress.sin_addr));
+    //strcpy(destination, inet_ntoa(localAddress.sin_addr));
 
     return result;
 }
@@ -152,7 +153,7 @@ int pp4m_NET_ConnectServerByAddress(char *address, int port) {
     return result;
 }
 
-int pp4m_NETSock_ConnectServerByAddress(int *socket, char *address, int port) {
+int pp4m_NETSock_ConnectServerByAddress(int socket, char *address, int port) {
     int result = 0;
     struct sockaddr_in addr;
 
@@ -160,7 +161,7 @@ int pp4m_NETSock_ConnectServerByAddress(int *socket, char *address, int port) {
     addr.sin_addr.s_addr = inet_addr(address);
     addr.sin_port = htons(port);
 
-    result = connect(*socket, (struct sockaddr*)&addr, sizeof(addr));
+    result = connect(socket, (struct sockaddr*)&addr, sizeof(addr));
     if (result == -1) {
         int error = errno;
         pp4m_IO_Feedback("feedback.txt", strerror(error));
