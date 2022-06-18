@@ -1,4 +1,5 @@
 #include "net_utils.h"
+#include "pp4m/pp4m_net.h"
 
 int handle_client(cli_t *client) {
 
@@ -54,4 +55,24 @@ void init_lobby_list(net_lobby *lobby_list, int max) {
         lobby_list[i].pair.cli_b = NULL;
         lobby_list[i].status = LB_AVAIL;
     }
+}
+
+cli_t client_accept(int master_socket, struct sockaddr_in *addr) {
+
+    cli_t client = {0, 0};
+    int new_socket = -1;
+    new_socket = accept(master_socket, (struct sockaddr*)addr, sizeof(addr));
+
+    if (new_socket > 0) {
+        client.socket = new_socket;
+        client.status = CL_IDLE;
+    }
+
+    return client;
+}
+
+void client_disconnect(cli_t *client) {
+    *client->socket = 0;
+    *client->status = 0;
+    return;
 }

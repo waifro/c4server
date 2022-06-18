@@ -39,10 +39,10 @@ typedef enum {
         CL_REQ_TOTAL_FILE,              // total files to download ........................ || "2xx 21", code
         CL_REQ_TOTAL_USER,              // total users at the moment connected ............ || "2xx 15 128", code, clients_active, max_clients
         CL_REQ_TOTAL_LOBBY,             // total lobbies (AVAIL/BUSY/etc..) ............... || "2xx 2 64", code, lobbies_active, max_lobbies
+        CL_REQ_ASSIGN_LOBBY,            // requesting to be assigned to a new lobby ....... || "2xx", code
     CL_REQ_END,                         // REQ END
 
     CL_REQ_LOBBY_START,                 // REQ LOBBY_START
-        CL_REQ_LOBBY_ASSIGN,            // requesting to be assigned to a new lobby ....... || "2xx", code
         CL_REQ_LOBBY_NICKNAME,          // client asking nickname of the other client ..... || "2xx", code
     CL_REQ_LOBBY_END,                   // REQ LOBBY_END
 
@@ -90,5 +90,8 @@ int verify_mesg_recv(char *mesg);
 int generate_val(int max);
 void init_client_list(cli_t *client_list, int max);
 void init_lobby_list(net_lobby *lobby_list, int max);
+
+cli_t client_accept(int master_socket, struct sockaddr_in *addr);
+void client_disconnect(cli_t *client);
 
 #endif

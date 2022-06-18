@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
 
         // update state of other sockets
         for (int i = 0; i < MAX_CLIENTS; i++) {
-            if (glo_client_list[i] == 0) continue;
+            if (glo_client_list[i] == NULL) continue;
             buf_client = glo_client_list[i];
 
             // if an old connection triggered
@@ -144,24 +144,47 @@ int main(int argc, char *argv[]) {
 					printf("client discnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
 
                     int room = lobby_updateroom_cli_left(&buf_client);
-                    client_disconnect(&buf_client);
+
+                    client_disconnect(glo_client_list[i]);
                     glo_client_list[i] = NULL;
 
                     if (room >= MAX_LOBBY) printf("\n");
-                    else printf("roomId %d[%d:%d]\n", room, glo_lobby[room].pair.sfd_a->socket, lobby[room].pair.sfd_b->socket);
+                    else printf("roomId %d[%x:%x]\n", room, glo_lobby[room].pair.sfd_a, lobby[room].pair.sfd_b);
 
-                } else if (result > 0) {
+                } else if (clcode_status_LOBBY(result) == 0) {
 
-                    clcode_redirect(result);
+                    int room = -1;
+                    for (int n = 0; n < MAX_LOBBY; n++) {
+                        if (lobby_checkroom_cli(&buf_client, n) == -1) continue;
+
+                        room = n;
+                        break;
+                    }
+
+                    if (room == -1) {
+                        printf("error, couldn't find client on lobbies: %d, [%s]\n", buf_client.socket, buffer);
+                        continue;
+                    }
+
+                    if (clcode_status_LOBBY_REQ(result) == 0) {
+
+                        clcode_LOBBY_REQ_redirect(result, &buf_client, room, buffer);
+
+                    } else { // clcode_status_LOBBY_POST
+
+                        clcode_LOBBY_POST_redirect(result, &buf_client, room, buffer);
+
+                    }
+                } else if (clcode_status_REQ(result) == 0) {
+
+                    clcode_REQ_redirect(result, &buf_client, -1, buffer);
+
+                } else if (clcode_status_POST(result) == 0) {
+
+                    clcode_POST_redirect(result, &buf_client, -1, buffer);
 
                 }
             }
-        }
-
-        for (int i = 0; i < MAX_LOBBY; i++) {
-
-
-
         }
     }
 

@@ -15,7 +15,6 @@ int lobby_checkroom_isfull(int room) {
     } else return -1;
 }
 
-
 int lobby_checkroom_isready(int room) {
     if (glo_lobby[room].status == LB_FULL) return 1;
     else return -1;
@@ -23,6 +22,12 @@ int lobby_checkroom_isready(int room) {
 
 int lobby_checkroom_isbusy(int room) {
     if (glo_lobby[room].status == LB_BUSY) return 1;
+    else return -1;
+}
+
+int lobby_checkroom_cli(cli_t *client, int room) {
+    if (glo_lobby[room].pair.cli_a == client) return 1;
+    else if (glo_lobby[room].pair.cli_b == client) return 2;
     else return -1;
 }
 

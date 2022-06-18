@@ -7,6 +7,8 @@ int lobby_checkroom_avail(int room);
 int lobby_checkroom_isfull(int room);
 int lobby_checkroom_isready(int room);
 int lobby_checkroom_isbusy(int room);
+int lobby_checkroom_cli(cli_t *client, int room);
+
 int lobby_assign_cli(cli_t *client);
 int lobby_random_start(int room, char *fen);
 int lobby_updateroom_cli_left(cli_t *client);
