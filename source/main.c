@@ -17,6 +17,9 @@
 #include "lobby.h"
 #include "global.h"
 
+cli_t glo_client_list[MAX_CLIENTS];
+net_lobby glo_lobby[MAX_LOBBY];
+
 const char* const short_option = "th";
 const struct option long_option[] = {
     { "testnet", 0, NULL, 't' },
@@ -90,12 +93,12 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < MAX_CLIENTS; i++) {
 
             // if valid socket descriptor then add to read list
-            if (&glo_client_list[i] != NULL)
-                FD_SET(glo_client_list[i].socket, &sets_fd);
+            if (glo_client_list[i] != 0)
+                FD_SET(glo_client_list[i]->socket, &sets_fd);
 
             //set highest file descriptor number, need it for the select() function
-            if(glo_client_list[i].socket > max_socket)
-                max_socket = glo_client_list[i].socket;
+            if(glo_client_list[i] > max_socket)
+                max_socket = glo_client_list[i];
         }
 
 
@@ -116,7 +119,7 @@ int main(int argc, char *argv[]) {
             } else {
 
                 for (int i = 0; i < MAX_CLIENTS; i++)
-                if (&glo_client_list[i] == NULL) {
+                if (glo_client_list[i] == 0) {
                     glo_client_list[i] = client;
                     break;
                 }
@@ -128,17 +131,17 @@ int main(int argc, char *argv[]) {
 
         // update state of other sockets
         for (int i = 0; i < MAX_CLIENTS; i++) {
-            if (&glo_client_list[i] == NULL) continue;
+            if (glo_client_list[i] == 0) continue;
             buf_client = glo_client_list[i];
 
             // if an old connection triggered
-            if (FD_ISSET(buf_client.socket, &sets_fd)) {
+            if (FD_ISSET(buf_client, &sets_fd)) {
 
                 result = handle_client(&buf_client);
 
                 // lost connection (?)
                 if (result == -1) {
-                    getpeername(buf_client.socket, (struct sockaddr*)&addr, &sockaddr_size);
+                    getpeername(buf_client, (struct sockaddr*)&addr, &sockaddr_size);
 
 					printf("client discnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
 

@@ -44,8 +44,7 @@ int generate_val(int max) {
 
 void init_client_list(cli_t *client_list, int max) {
     for (int i = 0; i < max; i++) {
-        client_list[i].socket = 0;
-        client_list[i].status = 0;
+        client_list[i] = 0;
     }
 }
 

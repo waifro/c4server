@@ -3,12 +3,10 @@
 
 #include "net_utils.h"
 
-#define PORT_MAINNET    62443
-#define PORT_TESTNET    61338
+#define PORT_MAINNET 62443
+#define PORT_TESTNET 61338
 
-cli_t   glo_client_list[MAX_CLIENTS];
-net_lobby   glo_lobby[MAX_LOBBY];
-
-char *fen_standard = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
+extern cli_t *glo_client_list;
+extern net_lobby *glo_lobby;
 
 #endif

@@ -13,10 +13,7 @@ typedef enum {
 } LOBBY_STATUS;
 
 // this struct will be used to join two incoming connections to compete the game
-typedef struct {
-    int socket;
-    int status; // used for communication client <-> server (keeps track of what happends via commands)
-} cli_t;
+#define cli_t int
 
 typedef struct {
     cli_t *cli_a, *cli_b;

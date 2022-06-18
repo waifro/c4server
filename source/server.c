@@ -40,6 +40,7 @@ int svcode_POST_redirect(int code, cli_t *client, int room, char *buffer) {
 
     switch(status) {
         case SV_POST_LOBBY_START:
+            result = lobby_random_start(room, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0");
             break;
 
         default:
