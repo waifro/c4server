@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     int connected = 0;
     int max_socket = 0;
 
-    cli_t buf_client = {0, 0};
+    cli_t buf_client = 0;
 
     init_client_list(glo_client_list, MAX_CLIENTS);
 
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
 
             // if valid socket descriptor then add to read list
             if (glo_client_list[i] != 0)
-                FD_SET(glo_client_list[i]->socket, &sets_fd);
+                FD_SET(glo_client_list[i], &sets_fd);
 
             //set highest file descriptor number, need it for the select() function
             if(glo_client_list[i] > max_socket)
@@ -148,10 +148,10 @@ int main(int argc, char *argv[]) {
                     int room = lobby_updateroom_cli_left(&buf_client);
 
                     client_disconnect(&glo_client_list[i]);
-                    &glo_client_list[i] = NULL;
+                    glo_client_list[i] = 0;
 
                     if (room >= MAX_LOBBY) printf("\n");
-                    else printf("roomId %d[%x:%x]\n", room, glo_lobby[room].pair.cli_a, lobby[room].pair.cli_b);
+                    else printf("roomId %d[%x:%x]\n", room, glo_lobby[room].pair.cli_a, glo_lobby[room].pair.cli_b);
 
                 } else if (clcode_status_LOBBY(result) == 0) {
 
