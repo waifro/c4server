@@ -124,7 +124,7 @@ int main(int argc, char *argv[]) {
                     break;
                 }
 
-                printf("[%d of %d] ", ++connected, MAX_CLIENTS);
+                printf("[%d of %d]\n", ++connected, MAX_CLIENTS);
 
             }
         }
