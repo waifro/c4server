@@ -138,7 +138,8 @@ int main(int argc, char *argv[]) {
             if (FD_ISSET(buf_client, &sets_fd)) {
 
                 result = cli2srv_handlePacket(&buf_client, buffer);
-
+                printf("buffer: [%s]\n", buffer);
+                
                 // lost connection (?)
                 if (result == -1) {
                     getpeername(buf_client, (struct sockaddr*)&addr, &addr_size);
