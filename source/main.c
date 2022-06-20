@@ -132,20 +132,19 @@ int main(int argc, char *argv[]) {
         // update state of other sockets
         for (int i = 0; i < MAX_CLIENTS; i++) {
             if (glo_client_list[i] == 0) continue;
-            buf_client = glo_client_list[i];
 
             // if an old connection triggered
-            if (FD_ISSET(buf_client, &sets_fd)) {
+            if (FD_ISSET(glo_client_list[i], &sets_fd)) {
 
-                result = cli2srv_handlePacket(&buf_client, buffer);
+                result = cli2srv_handlePacket(&glo_client_list[i], buffer);
 
                 // lost connection (?)
                 if (result == -1) {
-                    getpeername(buf_client, (struct sockaddr*)&addr, &addr_size);
+                    getpeername(glo_client_list[i], (struct sockaddr*)&addr, &addr_size);
 
 					printf("client discnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
 
-                    int room = lobby_updateroom_cli_left(glo_lobby, &buf_client);
+                    int room = lobby_updateroom_cli_left(glo_lobby, &glo_client_list[i]);
 
                     client_disconnect(&glo_client_list[i]);
                     glo_client_list[i] = 0;
@@ -157,33 +156,33 @@ int main(int argc, char *argv[]) {
 
                     int room = -1;
                     for (int n = 0; n < MAX_LOBBY; n++) {
-                        if (lobby_checkroom_cli(glo_lobby, &buf_client, n) == -1) continue;
+                        if (lobby_checkroom_cli(glo_lobby, &glo_client_list[i], n) == -1) continue;
 
                         room = n;
                         break;
                     }
 
                     if (room == -1) {
-                        printf("error, couldn't find client on lobbies: %d, [%s]\n", buf_client, buffer);
+                        printf("error, couldn't find client on lobbies: %d, [%s]\n", glo_client_list[i], buffer);
                         continue;
                     }
 
                     if (clcode_status_LOBBY_REQ(result) == 0) {
 
-                        clcode_LOBBY_REQ_redirect(result, glo_lobby, &buf_client, room, buffer);
+                        clcode_LOBBY_REQ_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
 
                     } else { // clcode_status_LOBBY_POST
 
-                        clcode_LOBBY_POST_redirect(result, glo_lobby, &buf_client, room, buffer);
+                        clcode_LOBBY_POST_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
 
                     }
                 } else if (clcode_status_REQ(result) == 0) {
 
-                    clcode_REQ_redirect(result, glo_lobby, &buf_client, -1, buffer);
+                    clcode_REQ_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
 
                 } else if (clcode_status_POST(result) == 0) {
 
-                    clcode_POST_redirect(result, glo_lobby, &buf_client, -1, buffer);
+                    clcode_POST_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
 
                 }
             }
