@@ -137,7 +137,7 @@ int main(int argc, char *argv[]) {
             // if an old connection triggered
             if (FD_ISSET(buf_client, &sets_fd)) {
 
-                result = handle_client(&buf_client, buffer);
+                result = cli2srv_handlePacket(&buf_client, buffer);
 
                 // lost connection (?)
                 if (result == -1) {
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
 
 					printf("client discnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
 
-                    int room = lobby_updateroom_cli_left(&buf_client);
+                    int room = lobby_updateroom_cli_left(glo_lobby, &buf_client);
 
                     client_disconnect(&glo_client_list[i]);
                     glo_client_list[i] = 0;
@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
 
                     int room = -1;
                     for (int n = 0; n < MAX_LOBBY; n++) {
-                        if (lobby_checkroom_cli(&buf_client, n) == -1) continue;
+                        if (lobby_checkroom_cli(glo_lobby, &buf_client, n) == -1) continue;
 
                         room = n;
                         break;
