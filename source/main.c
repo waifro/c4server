@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
 
                 result = cli2srv_handlePacket(&buf_client, buffer);
                 printf("buffer: [%s]\n", buffer);
-                
+
                 // lost connection (?)
                 if (result == -1) {
                     getpeername(buf_client, (struct sockaddr*)&addr, &addr_size);
@@ -154,7 +154,10 @@ int main(int argc, char *argv[]) {
                     if (room >= MAX_LOBBY) printf("\n");
                     else printf("roomId %d[%p:%p]\n", room, glo_lobby[room].pair.cli_a, glo_lobby[room].pair.cli_b);
 
-                } else if (clcode_status_LOBBY(result) == 0) {
+                    continue;
+                }
+
+                if (clcode_status_LOBBY(result) == 0) {
 
                     int room = -1;
                     for (int n = 0; n < MAX_LOBBY; n++) {
@@ -180,6 +183,7 @@ int main(int argc, char *argv[]) {
                     }
                 } else if (clcode_status_REQ(result) == 0) {
 
+                    printf("entering clcode_REQ_redirect...\n");
                     clcode_REQ_redirect(result, glo_lobby, &buf_client, -1, buffer);
 
                 } else if (clcode_status_POST(result) == 0) {
