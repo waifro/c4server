@@ -128,22 +128,22 @@ int clcode_LOBBY_POST_redirect(int code, net_lobby *lobby, cli_t *client, int ro
     return result;
 }
 
-int svcode_redirect(int code, cli_t *client, int room, char *buffer) {
+int svcode_redirect(int code, net_lobby *lobby, cli_t *client, int room, char *buffer) {
     int result = 0;
 
     if (svcode_status_STATE(code) == 0) result = 0; // im not sure what to do with this and cli_t.status
-    else if (svcode_status_REQ(code) == 0) result = svcode_REQ_redirect(code, client, room, buffer);
-    else if (svcode_status_POST(code) == 0) result = svcode_POST_redirect(code, client, room, buffer);
+    else if (svcode_status_REQ(code) == 0) result = svcode_REQ_redirect(code, lobby, client, room, buffer);
+    else if (svcode_status_POST(code) == 0) result = svcode_POST_redirect(code, lobby, client, room, buffer);
 
     return result;
 }
 
-int clcode_redirect(int code, cli_t *client, int room, char *buffer) {
+int clcode_redirect(int code, net_lobby *lobby, cli_t *client, int room, char *buffer) {
     int result = 0;
 
     if (clcode_status_STATE(code) == 0) result = 0; // im not sure what to do with this and cli_t.status
-    else if (clcode_status_REQ(code) == 0) result = clcode_REQ_redirect(code, client, room, buffer);
-    else if (clcode_status_POST(code) == 0) result = clcode_POST_redirect(code, client, room, buffer);
+    else if (clcode_status_REQ(code) == 0) result = clcode_REQ_redirect(code, lobby, client, room, buffer);
+    else if (clcode_status_POST(code) == 0) result = clcode_POST_redirect(code, lobby, client, room, buffer);
 
     return result;
 }
