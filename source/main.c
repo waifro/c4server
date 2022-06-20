@@ -188,6 +188,15 @@ int main(int argc, char *argv[]) {
 
                 }
             }
+
+            for (int i = 0; i < MAX_LOBBY; i++) {
+
+                // lobby is signed full, ready to play
+                if (lobby_checkroom_isready(glo_lobby, i) == 1) {
+                    svcode_POST_redirect(SV_POST_LOBBY_START, glo_lobby, NULL, i, NULL);
+                    printf("roomId %d[%p:%p] started\n", i, glo_lobby[i].pair.cli_a, glo_lobby[i].pair.cli_b);
+                }
+            }
         }
     }
 
