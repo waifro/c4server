@@ -4,9 +4,8 @@
 #include "server.h"
 #include "lobby.h"
 
-#include "net.h"
 #include "net_utils.h"
-#include "../pp4m/pp4m_net.h"
+#include "pp4m/pp4m_net.h"
 
 int svcode_status_STATE(int code) {
     return (code > SV_STATE_START && code < SV_STATE_END ? 0 : -1);

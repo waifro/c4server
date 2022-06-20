@@ -6,7 +6,7 @@
 #include "lobby.h"
 
 #include "net_utils.h"
-#include "../pp4m/pp4m_net.h"
+#include "pp4m/pp4m_net.h"
 
 int clcode_status_STATE(int code) {
     return (code > CL_STATE_START && code < CL_STATE_END ? 0 : -1);
