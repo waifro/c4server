@@ -47,12 +47,19 @@ int lobby_assign_cli(net_lobby *lobby, cli_t *client) {
         result = lobby_checkroom_avail(lobby, i);
         if (result == -1) continue;
 
+        printf("test\n");
+
         // assign the lobby
         if (result == 1) lobby[i].pair.cli_a = client;
         else if (result == 2) lobby[i].pair.cli_b = client;
 
+        printf("test\n");
+
         // target the lobby
         if (lobby_checkroom_isfull(lobby, i) == 1) lobby[i].status = LB_FULL;
+
+        printf("result: %d, status: %d\n", result, lobby[i].status);
+
         break;
     }
 
