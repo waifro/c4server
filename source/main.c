@@ -170,20 +170,20 @@ int main(int argc, char *argv[]) {
 
                     if (clcode_status_LOBBY_REQ(result) == 0) {
 
-                        clcode_LOBBY_REQ_redirect(result, &buf_client, room, buffer);
+                        clcode_LOBBY_REQ_redirect(result, glo_lobby, &buf_client, room, buffer);
 
                     } else { // clcode_status_LOBBY_POST
 
-                        clcode_LOBBY_POST_redirect(result, &buf_client, room, buffer);
+                        clcode_LOBBY_POST_redirect(result, glo_lobby, &buf_client, room, buffer);
 
                     }
                 } else if (clcode_status_REQ(result) == 0) {
 
-                    clcode_REQ_redirect(result, &buf_client, -1, buffer);
+                    clcode_REQ_redirect(result, glo_lobby, &buf_client, -1, buffer);
 
                 } else if (clcode_status_POST(result) == 0) {
 
-                    clcode_POST_redirect(result, &buf_client, -1, buffer);
+                    clcode_POST_redirect(result, glo_lobby, &buf_client, -1, buffer);
 
                 }
             }
