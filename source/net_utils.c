@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "client.h"
-#include "../pp4m/pp4m_net.h"
+#include "pp4m/pp4m_net.h"
 
 int retrieve_code(char *mesg) {
 
