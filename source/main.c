@@ -114,8 +114,8 @@ int main(int argc, char *argv[]) {
             cli_t client = client_accept(master_socket, &addr);
             printf("client connect: %s:%d\t", inet_ntoa(addr.sin_addr), htons(addr.sin_port));
 
-            if (connected > MAX_CLIENTS) {
-                printf("[%d of %d] | server full, ignored\n", --connected, MAX_CLIENTS);
+            if (connected == MAX_CLIENTS) {
+                printf("[%d of %d] | server full, ignored\n", connected, MAX_CLIENTS);
             } else {
 
                 for (int i = 0; i < MAX_CLIENTS; i++)
@@ -154,10 +154,7 @@ int main(int argc, char *argv[]) {
                     if (room >= MAX_LOBBY) printf("\n");
                     else printf("roomId %d[%p:%p]\n", room, glo_lobby[room].pair.cli_a, glo_lobby[room].pair.cli_b);
 
-                    continue;
-                }
-
-                if (clcode_status_LOBBY(result) == 0) {
+                } else if (clcode_status_LOBBY(result) == 0) {
 
                     int room = -1;
                     for (int n = 0; n < MAX_LOBBY; n++) {
