@@ -68,16 +68,17 @@ int lobby_random_start(net_lobby *lobby, int room, char *fen) {
 
     if (generate_val(100) < 50) {
         result = send(*lobby[room].pair.cli_a, buf, strlen(buf) + 1, 0);
-        if (result == -1) { perror("lobby_random_start 1"); return -1; }
         buf[0] = 'b';
         result = send(*lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
-        if (result == -1) { perror("lobby_random_start 2"); return -1; }
     } else {
         send(*lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
-        if (result == -1) { perror("lobby_random_start 1"); return -1; }
         buf[0] = 'b';
         send(*lobby[room].pair.cli_a, buf, strlen(buf) + 1, 0);
-        if (result == -1) { perror("lobby_random_start 2"); return -1; }
+    }
+
+    if (result == -1) {
+        perror("lobby_random_start");
+        return -1;
     }
 
     lobby[room].status = LB_BUSY;
