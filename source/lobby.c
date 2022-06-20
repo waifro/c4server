@@ -71,9 +71,9 @@ int lobby_random_start(net_lobby *lobby, int room, char *fen) {
         buf[0] = 'b';
         result = send(*lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
     } else {
-        send(*lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
+        result = send(*lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
         buf[0] = 'b';
-        send(*lobby[room].pair.cli_a, buf, strlen(buf) + 1, 0);
+        result = send(*lobby[room].pair.cli_a, buf, strlen(buf) + 1, 0);
     }
 
     if (result == -1) {
