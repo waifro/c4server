@@ -10,11 +10,8 @@
 
 int lobby_checkroom_avail(net_lobby *lobby, int room) {
     if (lobby[room].status == LB_AVAIL) {
-
-        printf("test\n");
-
-        if (*lobby[room].pair.cli_a == 0) return 1;
-        else if (*lobby[room].pair.cli_b == 0) return 2;
+        if (lobby[room].pair.cli_a == NULL) return 1;
+        else if (lobby[room].pair.cli_b == NULL) return 2;
     }
 
     return -1;
@@ -22,7 +19,7 @@ int lobby_checkroom_avail(net_lobby *lobby, int room) {
 
 int lobby_checkroom_isfull(net_lobby *lobby, int room) {
     if (lobby[room].status == LB_AVAIL)
-        if (*lobby[room].pair.cli_a != 0 && *lobby[room].pair.cli_b != 0) return 1;
+        if (lobby[room].pair.cli_a != NULL && lobby[room].pair.cli_b != NULL) return 1;
 
     return -1;
 }
@@ -50,18 +47,12 @@ int lobby_assign_cli(net_lobby *lobby, cli_t *client) {
         result = lobby_checkroom_avail(lobby, i);
         if (result == -1) continue;
 
-        printf("test\n");
-
         // assign the lobby
         if (result == 1) lobby[i].pair.cli_a = client;
         else if (result == 2) lobby[i].pair.cli_b = client;
 
-        printf("test\n");
-
         // target the lobby
         if (lobby_checkroom_isfull(lobby, i) == 1) lobby[i].status = LB_FULL;
-
-        printf("result: %d, status: %d\n", result, lobby[i].status);
 
         break;
     }

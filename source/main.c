@@ -183,7 +183,6 @@ int main(int argc, char *argv[]) {
                     }
                 } else if (clcode_status_REQ(result) == 0) {
 
-                    printf("entering clcode_REQ_redirect...\n");
                     clcode_REQ_redirect(result, glo_lobby, &buf_client, -1, buffer);
 
                 } else if (clcode_status_POST(result) == 0) {
