@@ -10,6 +10,9 @@
 
 int lobby_checkroom_avail(net_lobby *lobby, int room) {
     if (lobby[room].status == LB_AVAIL) {
+
+        printf("test\n");
+
         if (*lobby[room].pair.cli_a == 0) return 1;
         else if (*lobby[room].pair.cli_b == 0) return 2;
     }
