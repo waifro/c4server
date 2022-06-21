@@ -1,5 +1,5 @@
 SOURCE := source/main.c source/net_utils.c source/lobby.c source/client.c source/server.c
-DEP_PP4M := source/pp4m/pp4m_io.c source/pp4m/pp4m_net.c
+DEP_PP4M := source/pp4m/pp4m.c source/pp4m/pp4m_io.c source/pp4m/pp4m_net.c
 
 OUTPUT := $(notdir $(CURDIR))
 
