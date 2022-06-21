@@ -12,8 +12,8 @@
 
 int lobby_checkroom_avail(net_lobby *lobby, int room) {
     if (lobby[room].status == LB_AVAIL) {
-        if (*lobby[room].pair.cli_a == 0) return 1;
-        else if (*lobby[room].pair.cli_b == 0) return 2;
+        if (lobby[room].pair.cli_a == NULL) return 1;
+        else if (lobby[room].pair.cli_b == NULL) return 2;
     }
 
     return -1;
@@ -21,7 +21,7 @@ int lobby_checkroom_avail(net_lobby *lobby, int room) {
 
 int lobby_checkroom_isfull(net_lobby *lobby, int room) {
     if (lobby[room].status == LB_AVAIL)
-        if (*lobby[room].pair.cli_a != 0 && *lobby[room].pair.cli_b != 0) return 1;
+        if (lobby[room].pair.cli_a != NULL && lobby[room].pair.cli_b != NULL) return 1;
 
     return -1;
 }
