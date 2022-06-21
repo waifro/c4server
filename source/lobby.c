@@ -10,8 +10,8 @@
 
 int lobby_checkroom_avail(net_lobby *lobby, int room) {
     if (lobby[room].status == LB_AVAIL) {
-        if (lobby[room].pair.cli_a == NULL) return 1;
-        else if (lobby[room].pair.cli_b == NULL) return 2;
+        if (*lobby[room].pair.cli_a == 0) return 1;
+        else if (*lobby[room].pair.cli_b == 0) return 2;
     }
 
     return -1;
@@ -19,7 +19,7 @@ int lobby_checkroom_avail(net_lobby *lobby, int room) {
 
 int lobby_checkroom_isfull(net_lobby *lobby, int room) {
     if (lobby[room].status == LB_AVAIL)
-        if (lobby[room].pair.cli_a != NULL && lobby[room].pair.cli_b != NULL) return 1;
+        if (*lobby[room].pair.cli_a != 0 && *lobby[room].pair.cli_b != 0) return 1;
 
     return -1;
 }
@@ -53,7 +53,6 @@ int lobby_assign_cli(net_lobby *lobby, cli_t *client) {
 
         // target the lobby
         if (lobby_checkroom_isfull(lobby, i) == 1) lobby[i].status = LB_FULL;
-
         break;
     }
 
@@ -64,21 +63,20 @@ int lobby_random_start(net_lobby *lobby, int room, char *fen) {
     int result = -1;
 
     char buf[256];
-    sprintf(buf, "%d w %s", SV_POST_LOBBY_START, fen);
+    sprintf(buf, "%d w %s", SV_LOBBY_POST_START, fen);
 
     if (generate_val(100) < 50) {
         result = send(*lobby[room].pair.cli_a, buf, strlen(buf) + 1, 0);
-        buf[4] = 'b';
+        if (result == -1) { perror("lobby_random_start 1"); return -1; }
+        buf[0] = 'b';
         result = send(*lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
+        if (result == -1) { perror("lobby_random_start 2"); return -1; }
     } else {
-        result = send(*lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
-        buf[4] = 'b';
-        result = send(*lobby[room].pair.cli_a, buf, strlen(buf) + 1, 0);
-    }
-
-    if (result == -1) {
-        perror("lobby_random_start");
-        return -1;
+        send(*lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
+        if (result == -1) { perror("lobby_random_start 1"); return -1; }
+        buf[0] = 'b';
+        send(*lobby[room].pair.cli_a, buf, strlen(buf) + 1, 0);
+        if (result == -1) { perror("lobby_random_start 2"); return -1; }
     }
 
     lobby[room].status = LB_BUSY;
@@ -107,6 +105,32 @@ int lobby_updateroom_cli_left(net_lobby *lobby, cli_t *client) {
     }
 
     return room;
+}
+
+int lobby_SV_POST_LOBBY_MOVE(net_lobby *lobby, cli_t *client, int room, char *buffer) {
+    int result = -1;
+
+    // overwrite old code
+    for (int i = 0; i < 3; i++)
+        buffer[i] = '0' + pp4m_p_int_index(SV_LOBBY_POST_MOVE, i);
+
+    // send new message
+    result = lobby_redirect_buf(lobby, client, room, buffer);
+
+    return result;
+}
+
+int lobby_SV_POST_LOBBY_MESG(net_lobby *lobby, cli_t *client, int room, char *buffer) {
+    int result = -1;
+
+    // overwrite old code
+    for (int i = 0; i < 3; i++)
+        buffer[i] = '0' + pp4m_p_int_index(SV_LOBBY_POST_MESG, i);
+
+    // send new message
+    result = lobby_redirect_buf(lobby, client, room, buffer);
+
+    return result;
 }
 
 int lobby_redirect_buf(net_lobby *lobby, cli_t *client, int room, char *buffer) {
