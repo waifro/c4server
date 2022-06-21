@@ -180,7 +180,7 @@ int main(int argc, char *argv[]) {
 
                     sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
 
-                } else if (clcode_status_POST(result) == 0) {
+                } else if (cl_status_POST(result) == 0) {
 
                     sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
 
