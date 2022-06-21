@@ -128,6 +128,7 @@ int sv_redirect_clcode_REQ(int code, net_lobby *lobby, cli_t *client, int room, 
     switch(code) {
         case CL_REQ_ASSIGN_LOBBY:
             result = lobby_assign_cli(lobby, client);
+            printf("assigned lobby\n");
             break;
 
         default:

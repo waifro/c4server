@@ -167,6 +167,8 @@ int main(int argc, char *argv[]) {
                         continue;
                     }
 
+                    sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
+                    /*
                     if (cl_status_LOBBY_REQ(result) == 0) {
 
                         sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
@@ -176,7 +178,8 @@ int main(int argc, char *argv[]) {
                         sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
 
                     }
-                } else if (cl_status_REQ(result) == 0) {
+                    */
+                } else sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer); /*else if (cl_status_REQ(result) == 0) {
 
                     sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
 
@@ -185,6 +188,7 @@ int main(int argc, char *argv[]) {
                     sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
 
                 }
+                */
             }
 
             for (int i = 0; i < MAX_LOBBY; i++) {
