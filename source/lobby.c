@@ -5,7 +5,6 @@
 #include "lobby.h"
 #include "server.h"
 #include "client.h"
-#include "net.h"
 #include "net_utils.h"
 
 #include "pp4m/pp4m.h"
