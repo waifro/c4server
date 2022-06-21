@@ -114,7 +114,7 @@ int lobby_SV_POST_LOBBY_MOVE(net_lobby *lobby, cli_t *client, int room, char *bu
 
     // overwrite old code
     for (int i = 0; i < 3; i++)
-        buffer[i] = pp4m_p_int_index(SV_POST_LOBBY_MOVE, i);
+        buffer[i] = '0' + pp4m_p_int_index(SV_POST_LOBBY_MOVE, i);
 
     // send new message
     result = lobby_redirect_buf(lobby, client, room, buffer);
@@ -127,7 +127,7 @@ int lobby_SV_POST_LOBBY_MESG(net_lobby *lobby, cli_t *client, int room, char *bu
 
     // overwrite old code
     for (int i = 0; i < 3; i++)
-        buffer[i] = pp4m_p_int_index(SV_POST_LOBBY_MESG, i);
+        buffer[i] = '0' + pp4m_p_int_index(SV_POST_LOBBY_MESG, i);
 
     // send new message
     result = lobby_redirect_buf(lobby, client, room, buffer);
