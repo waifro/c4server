@@ -168,27 +168,8 @@ int main(int argc, char *argv[]) {
                     }
 
                     sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
-                    /*
-                    if (cl_status_LOBBY_REQ(result) == 0) {
 
-                        sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
-
-                    } else { // clcode_status_LOBBY_POST
-
-                        sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
-
-                    }
-                    */
-                } else sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer); /*else if (cl_status_REQ(result) == 0) {
-
-                    sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
-
-                } else if (cl_status_POST(result) == 0) {
-
-                    sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
-
-                }
-                */
+                } else sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
             }
 
             for (int i = 0; i < MAX_LOBBY; i++) {
