@@ -70,7 +70,7 @@ int lobby_random_start(net_lobby *lobby, int room, char *fen) {
     if (generate_val(100) < 50) {
         result = send(*lobby[room].pair.cli_a, buf, strlen(buf) + 1, 0);
         buf[4] = 'b';
-        result = result = send(*lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
+        result = send(*lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
     } else {
         result = send(*lobby[room].pair.cli_b, buf, strlen(buf) + 1, 0);
         buf[4] = 'b';
