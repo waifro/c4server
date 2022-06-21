@@ -4,9 +4,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include <SDL2/SDL.h>
 
 #include "pp4m.h"
+
+/*
 #include "pp4m_image.h"
 #include "pp4m_ttf.h"
 
@@ -194,6 +195,39 @@ void pp4m_HOOK_Remove(PP4M_HOOK *head) {
     tail->next = NULL;
 
     return;
+}
+*/
+
+// positive integer (.. >= 0) to "how many digits as number"
+int pp4m_p_itod(int foo) {
+    int count = 1;
+    for (int b = 10; b < foo; b = MOVED(b)) count++;
+    return count;
+}
+
+// positive integer (.. >= 0) to "how many digits as verbose"
+int pp4m_p_itodv(int index) {
+    int a; index--;
+    for (a = 1; index > 0; index--) a = MOVED(a);
+    return a;
+}
+
+// positive integer (.. >= 0) to "how many digits in index"
+int pp4m_p_int_index(int foo, int index) {
+    if (index > pp4m_p_itod(foo)) return -1;
+
+    int val = 0;
+    int length = pp4m_p_itod(foo);
+
+    for (int a = 0; a < index; a++) {
+        for (int b = pp4m_p_itodv(length); foo >= b; foo -= b);
+        length--;
+    }
+
+    for (int b = pp4m_p_itodv(length); foo >= b; foo -= b)
+        val++;
+
+    return val;
 }
 
 /* 2022 @waifro */

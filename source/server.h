@@ -23,6 +23,7 @@ typedef enum {
     SV_POST_START = 300,                // POST START
     SV_POST_END,                        // POST END
 
+<<<<<<< HEAD
     SV_LOBBY_POST_START,                // POST LOBBY_START
         SV_LOBBY_POST_INIT,             // lobby initialized and ready .................... || "3xx w 8/8/3k4/8/8/3K4/8/8 - - 0 0", code, player_view, fen_board, fen_castle, fen_passant, fen_halfm, fen_fullm
         SV_LOBBY_POST_PARTNER_LEFT,     // the partner left the game ...................... || "3xx", code
@@ -30,6 +31,15 @@ typedef enum {
 		SV_LOBBY_POST_MESG,				// messaging chat ................................. || "3xx How long have you been playing here?", code, buf_mesg
         SV_LOBBY_POST_TIME,             // prompting new time for timers to sync .......... || "3xx 2189432", code, time_in_clock
     SV_LOBBY_POST_END                   // POST LOBBY_END
+=======
+    SV_POST_LOBBY_START,                // POST LOBBY_START
+        SV_POST_LOBBY_INIT,             // lobby initialized and ready .................... || "3xx w 8/8/3k4/8/8/3K4/8/8 - - 0 0", code, player_view, fen_board, fen_castle, fen_passant, fen_halfm, fen_fullm
+        SV_POST_LOBBY_PARTNER_LEFT,     // the partner left the game ...................... || "3xx", code
+		SV_POST_LOBBY_MOVE,				// the partner move a piece ....................... || "3xx 24 43 -1", code, pos_old, pos_new, passant
+		SV_POST_LOBBY_MESG,				// messaging chat ................................. || "3xx How long have you been playing here?", code, buf_mesg
+        SV_POST_LOBBY_TIME,             // prompting new time for timers to sync .......... || "3xx 2189432", code, time_in_clock
+    SV_POST_LOBBY_END                   // POST LOBBY_END
+>>>>>>> 3a72e23b22bd5adc64071b6b85b7065009a6d058
 
 } SERVER_CMD;
 

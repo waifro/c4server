@@ -175,11 +175,19 @@ int sv_redirect_clcode_LOBBY_POST(int code, net_lobby *lobby, cli_t *client, int
             //result = lobby_assign_cli(client);
             break;
 
+<<<<<<< HEAD
         case CL_LOBBY_POST_MOVE:
             result = lobby_SV_POST_LOBBY_MOVE(lobby, client, room, buffer);
             break;
 
         case CL_LOBBY_POST_MESG:
+=======
+        case CL_POST_LOBBY_MOVE:
+            result = lobby_SV_POST_LOBBY_MOVE(lobby, client, room, buffer);
+            break;
+
+        case CL_POST_LOBBY_MESG:
+>>>>>>> 3a72e23b22bd5adc64071b6b85b7065009a6d058
             result = lobby_SV_POST_LOBBY_MESG(lobby, client, room, buffer);
             break;
 
