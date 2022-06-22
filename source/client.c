@@ -200,8 +200,8 @@ int cl_redirect_clcode_LOBBY_POST(int code, cli_t *socket, char *buffer, int *po
         break;
     }
 
-    if (result > -1)
-        result = NET_SendPacketToServer(socket, buffer, strlen(buffer)+1);
+    //if (result > -1)
+    //    result = NET_SendPacketToServer(socket, buffer, strlen(buffer)+1);
 
     return result;
 }
