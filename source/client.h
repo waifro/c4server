@@ -25,6 +25,7 @@ typedef enum {
     CL_LOBBY_REQ_END,                   // REQ LOBBY_END                                    ||
 
     CL_POST_START = 300,                // POST START                                       ||
+        CL_POST_RAW,                    // post raw data to server ........................ || "3xx ...", code, data
     CL_POST_END,                        // POST END                                         ||
 
     CL_LOBBY_POST_START,                // POST LOBBY_START                                 ||
@@ -48,17 +49,19 @@ int cl_redirect_svcode_POST(int code, char *buffer);
 int cl_redirect_svcode_LOBBY_REQ(int code, char *buffer, int *position_old, int *position_new, int *promotn);
 int cl_redirect_svcode_LOBBY_POST(int code, char *buffer, int *position_old, int *position_new, int *promotn);
 
+int cl_SV_LOBBY_POST_MOVE(char *buffer, int *position_old, int *position_new, int *promotn);
+
 int cl_redirect_clcode_STATE(int code, char *buffer);
 int cl_redirect_clcode_REQ(int code, char *buffer);
 int cl_redirect_clcode_POST(int code, char *buffer);
 int cl_redirect_clcode_LOBBY_REQ(int code, char *buffer, int *position_old, int *position_new, int *promotn);
-int cl_redirect_clcode_LOBBY_POST(int code, char *buffer, int *position_old, int *position_new, int *promotn);
+int cl_redirect_clcode_LOBBY_POST(int code, int *socket, char *buffer, int *position_old, int *position_new, int *promotn);
 
 int cl_POST_LOBBY_MOVE(char *buffer, int *position_old, int *position_new, int *promotn);
 int cl_REQ_ASSIGN_LOBBY(char *buffer);
 
 int cl_svcode_redirect(int code, char *buffer, int *position_old, int *position_new, int *promotn);
-int cl_clcode_redirect(int code, char *buffer, int *position_old, int *position_new, int *promotn);
+int cl_clcode_redirect(int code, int *socket, char *buffer, int *position_old, int *position_new, int *promotn);
 
 int cl_GrabPacket(cli_t *client, char *buffer);
 
