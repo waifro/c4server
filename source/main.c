@@ -176,7 +176,7 @@ int main(int argc, char *argv[]) {
 
             for (int i = 0; i < MAX_LOBBY; i++) {
 					
-				printf("")
+				printf("testing\n");
 				
                 // lobby is signed full, ready to play
                 if (lobby_checkroom_isready(glo_lobby, i) == 1) {
