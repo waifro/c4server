@@ -11,11 +11,11 @@
 #include "pp4m/pp4m_io.h"
 #include "pp4m/pp4m_net.h"
 
-#include "net_utils.h"
-#include "server.h"
-#include "client.h"
-#include "lobby.h"
-#include "global.h"
+#include "c4network/net_utils.h"
+#include "c4network/server.h"
+#include "c4network/client.h"
+#include "c4network/lobby.h"
+#include "c4network/global.h"
 
 cli_t glo_client_list[MAX_CLIENTS];
 net_lobby glo_lobby[MAX_LOBBY];
