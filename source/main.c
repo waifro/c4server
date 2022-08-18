@@ -15,7 +15,8 @@
 #include "c4network/server.h"
 #include "c4network/client.h"
 #include "c4network/lobby.h"
-#include "c4network/global.h"
+
+#include "global.h"
 
 cli_t glo_client_list[MAX_CLIENTS];
 net_lobby glo_lobby[MAX_LOBBY];
