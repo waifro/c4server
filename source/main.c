@@ -73,8 +73,6 @@ int main(int argc, char *argv[]) {
     int connected = 0;
     int max_socket = 0;
 
-    cli_t buf_client = 0;
-
     init_client_list(glo_client_list, MAX_CLIENTS);
 
     fd_set sets_fd;
@@ -141,6 +139,9 @@ int main(int argc, char *argv[]) {
 
                 // lost connection (?)
                 if (result == -1) {
+					
+					printf("something went wrong\n");
+					
                     getpeername(glo_client_list[i], (struct sockaddr*)&addr, &addr_size);
 
 					printf("client discnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
@@ -174,7 +175,9 @@ int main(int argc, char *argv[]) {
             }
 
             for (int i = 0; i < MAX_LOBBY; i++) {
-
+					
+				printf("")
+				
                 // lobby is signed full, ready to play
                 if (lobby_checkroom_isready(glo_lobby, i) == 1) {
                     sv_redirect_svcode_POST(SV_LOBBY_POST_START, glo_lobby, NULL, i, NULL);
