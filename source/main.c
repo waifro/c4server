@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
             // if an old connection triggered
             if (FD_ISSET(glo_client_list[i], &sets_fd)) {
 
-                result = cli2srv_handlePacket(&glo_client_list[i], buffer);
+                result = sv_handlePacket(&glo_client_list[i], buffer);
 
                 // lost connection (?)
                 if (result == -1) {
@@ -152,7 +152,7 @@ int main(int argc, char *argv[]) {
                     if (room >= MAX_LOBBY) printf("\n");
                     else printf("roomId %d[%p:%p]\n", room, glo_lobby[room].pair.cli_a, glo_lobby[room].pair.cli_b);
 
-                } else if (clcode_status_LOBBY(result) == 0) {
+                } else if (cl_status_LOBBY(result) == 0) {
 
                     int room = -1;
                     for (int n = 0; n < MAX_LOBBY; n++) {
@@ -167,31 +167,16 @@ int main(int argc, char *argv[]) {
                         continue;
                     }
 
-                    if (clcode_status_LOBBY_REQ(result) == 0) {
+                    sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
 
-                        clcode_LOBBY_REQ_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
-
-                    } else { // clcode_status_LOBBY_POST
-
-                        clcode_LOBBY_POST_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
-
-                    }
-                } else if (clcode_status_REQ(result) == 0) {
-
-                    clcode_REQ_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
-
-                } else if (clcode_status_POST(result) == 0) {
-
-                    clcode_POST_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
-
-                }
+                } else sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
             }
 
             for (int i = 0; i < MAX_LOBBY; i++) {
 
                 // lobby is signed full, ready to play
                 if (lobby_checkroom_isready(glo_lobby, i) == 1) {
-                    svcode_POST_redirect(SV_POST_LOBBY_START, glo_lobby, NULL, i, NULL);
+                    sv_redirect_svcode_POST(SV_LOBBY_POST_START, glo_lobby, NULL, i, NULL);
                     printf("roomId %d[%p:%p] started\n", i, glo_lobby[i].pair.cli_a, glo_lobby[i].pair.cli_b);
                 }
             }
