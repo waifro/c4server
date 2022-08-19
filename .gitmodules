@@ -1,8 +1,0 @@
-[submodule "c4server"]
-    path = c4server-testnet
-    url = https://github.com/waifro/c4server
-	branch = testnet
-[submodule "c4server"]
-    path = c4server-mainnet
-    url = https://github.com/waifro/c4server
-	branch = mainnet
