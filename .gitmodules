@@ -1,6 +1,6 @@
 [submodule "c4server"]
-	path = c4server-testnet
-	url = https://github.com/waifro/c4server/tree/testnet
+    path = c4server-testnet
+    url = https://github.com/waifro/c4server/tree/testnet
 [submodule "c4server"]
     path = c4server-mainnet
     url = https://github.com/waifro/c4server/tree/mainnet
