@@ -5,4 +5,4 @@ DEP_C4NETWORK := source/c4network/net.c source/c4network/net_utils.c source/c4ne
 OUTPUT := $(notdir $(CURDIR))
 
 all :	$(SOURCE) $(DEP_PP4M) $(DEP_C4NETWORK)
-	gcc $(SOURCE) $(DEP_PP4M) $(DEP_C4NETWORK) -O0 -g -Wall -Wextra -o $(OUTPUT)
+	gcc $(SOURCE) $(DEP_PP4M) $(DEP_C4NETWORK) -O0 -g -gdwarf-2 -Wall -Wextra -o $(OUTPUT)
