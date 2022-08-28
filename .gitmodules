@@ -1,8 +1,1 @@
-<<<<<<< HEAD
-[submodule "source/source/c4network"]
-	path = source/source/c4network
-=======
-[submodule "source/c4network"]
-	path = source/c4network
->>>>>>> parent of 65de4a7... tmp c4network remove
-	url = https://github.com/waifro/c4network
+
