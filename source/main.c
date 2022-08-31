@@ -58,7 +58,7 @@ int addr_start_init(int *master_socket, struct sockaddr_in *addr, int port) {
 		exit(EXIT_FAILURE);
 	}
 
-    result = bind(*master_socket, (struct sockaddr*)addr, sizeof((struct sockaddr_in)));
+    result = bind(*master_socket, (struct sockaddr*)addr, sizeof(struct sockaddr_in));
     if (result == -1) {
         printf("bind: %s\n", strerror(errno));
         return result;
