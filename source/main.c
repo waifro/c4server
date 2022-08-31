@@ -28,7 +28,7 @@ const struct option long_option[] = {
     { NULL, 0, NULL, 0 }
 };
 
-int addr_init(struct sockaddr_in *addr) {
+int addr_init(struct sockaddr_in *addr, int port) {
 	if (addr == NULL) return -1;
 	
 	addr->sin_family = AF_INET;
@@ -38,7 +38,7 @@ int addr_init(struct sockaddr_in *addr) {
 	return 0;
 }
 
-int addr_start_init(int *master_socket, struct sockaddr_in *addr) {
+int addr_start_init(int *master_socket, struct sockaddr_in *addr, int port) {
 	int result = -1;
 	
 	*master_socket = pp4m_NET_Init(TCP);
@@ -53,7 +53,7 @@ int addr_start_init(int *master_socket, struct sockaddr_in *addr) {
         exit(EXIT_FAILURE);
     }
 
-    if (addr_init(addr) == -1) {
+    if (addr_init(addr, port) == -1) {
 		printf("addr not initialized\n");
 		exit(EXIT_FAILURE);
 	}
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
     if (result == -1) port = PORT_MAINNET;
     else if (result == 't') port = PORT_TESTNET;
 	
-    if (addr_start_init(&master_socket, &addr) == -1)
+    if (addr_start_init(&master_socket, &addr, port) == -1)
 		exit(EXIT_FAILURE);
 	
 	// server is ready to operate
