@@ -38,17 +38,17 @@ int addr_init(struct sockaddr_in *addr) {
 	return 0;
 }
 
-int addr_start_init(int mastersock, struct sockaddr_in *addr) {
+int addr_start_init(int *master_socket, struct sockaddr_in *addr) {
 	int result = -1;
 	
-	master_socket = pp4m_NET_Init(TCP);
-    if (master_socket == -1) {
+	*master_socket = pp4m_NET_Init(TCP);
+    if (*master_socket == -1) {
         printf("master_socket:  %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
 
     int opt = 1;
-    if (setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (void*)&opt, sizeof(opt)) != 0) {
+    if (setsockopt(*master_socket, SOL_SOCKET, SO_REUSEADDR, (void*)&opt, sizeof(opt)) != 0) {
         perror("setsockopt");
         exit(EXIT_FAILURE);
     }
@@ -58,13 +58,13 @@ int addr_start_init(int mastersock, struct sockaddr_in *addr) {
 		exit(EXIT_FAILURE);
 	}
 
-    result = bind(master_socket, (struct sockaddr*)&addr, sizeof(addr));
+    result = bind(*master_socket, (struct sockaddr*)&addr, sizeof(addr));
     if (result == -1) {
         printf("bind: %s\n", strerror(errno));
         return result;
     }
 
-    result = listen(master_socket, SOMAXCONN);
+    result = listen(*master_socket, SOMAXCONN);
     if (result == -1) {
         printf("listen: %s\n", strerror(errno));
         return result;
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
     if (result == -1) port = PORT_MAINNET;
     else if (result == 't') port = PORT_TESTNET;
 	
-    if (addr_start_init(master_socket, addr) == -1)
+    if (addr_start_init(&master_socket, &addr) == -1)
 		exit(EXIT_FAILURE);
 	
 	// server is ready to operate
