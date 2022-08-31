@@ -192,9 +192,11 @@ int main(int argc, char *argv[]) {
                         printf("error, couldn't find client on lobbies: %d, [%s]\n", glo_client_list[i], buffer);
                         continue;
                     }
-
+					
+					// lobby updates
                     sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
-
+				
+				// user updates
                 } else sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
             }
 
