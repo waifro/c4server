@@ -28,19 +28,23 @@ const struct option long_option[] = {
     { NULL, 0, NULL, 0 }
 };
 
-int main(int argc, char *argv[]) {
+int addr_init(sockaddr_in *addr) {
+	if (addr == NULL) return -1;
+	
+	addr->sin_family = AF_INET;
+    addr->sin_addr.s_addr = INADDR_ANY;
+    addr->sin_port = htons(port);
+	
+	return 0;
+}
 
-    int master_socket = -1, result, port;
-    struct sockaddr_in addr;
-
-    result = getopt_long(argc, argv, short_option, long_option, NULL);
-    if (result == -1) port = PORT_MAINNET;
-    else if (result == 't') port = PORT_TESTNET;
-
-    master_socket = pp4m_NET_Init(TCP);
+int addr_start_init(int mastersock, sockaddr_in *addr) {
+	int result = -1;
+	
+	master_socket = pp4m_NET_Init(TCP);
     if (master_socket == -1) {
         printf("master_socket:  %s\n", strerror(errno));
-        exit(0);
+        exit(EXIT_FAILURE);
     }
 
     int opt = 1;
@@ -49,22 +53,41 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(port);
+    if (addr_init(addr) == -1) {
+		printf("addr not initialized\n");
+		exit(EXIT_FAILURE);
+	}
 
     result = bind(master_socket, (struct sockaddr*)&addr, sizeof(addr));
     if (result == -1) {
         printf("bind: %s\n", strerror(errno));
-        exit(0);
+        return result;
     }
 
     result = listen(master_socket, SOMAXCONN);
     if (result == -1) {
         printf("listen: %s\n", strerror(errno));
-        exit(0);
+        return result;
     }
+	
+	return result;
+}
 
+int main(int argc, char *argv[]) {
+	int result = -1;
+	
+	// read argv to set port
+    result = getopt_long(argc, argv, short_option, long_option, NULL);
+    if (result == -1) port = PORT_MAINNET;
+    else if (result == 't') port = PORT_TESTNET;
+	
+	int master_socket = -1, port;
+    struct sockaddr_in addr;
+	
+    if (addr_start_init(master_socket, addr) == -1)
+		exit(EXIT_FAILURE);
+	
+	// server is ready to operate
     printf("c4server ready: port %d\n", port);
 
     char buffer[256];
@@ -105,9 +128,10 @@ int main(int argc, char *argv[]) {
         result = select(max_socket + 1, &sets_fd, NULL, NULL, &timeout);
         if (result == -1) {
             printf("select: %s, %d\n", strerror(errno), pp4m_NET_RecieveError());
-            exit(0);
+            exit(EXIT_FAILURE);
         }
-
+		
+		// new connections
         if (FD_ISSET(master_socket, &sets_fd)) {
 
             cli_t client = client_accept(master_socket, &addr);
