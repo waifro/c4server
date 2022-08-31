@@ -28,7 +28,7 @@ const struct option long_option[] = {
     { NULL, 0, NULL, 0 }
 };
 
-int addr_init(sockaddr_in *addr) {
+int addr_init(struct sockaddr_in *addr) {
 	if (addr == NULL) return -1;
 	
 	addr->sin_family = AF_INET;
@@ -38,7 +38,7 @@ int addr_init(sockaddr_in *addr) {
 	return 0;
 }
 
-int addr_start_init(int mastersock, sockaddr_in *addr) {
+int addr_start_init(int mastersock, struct sockaddr_in *addr) {
 	int result = -1;
 	
 	master_socket = pp4m_NET_Init(TCP);
@@ -76,13 +76,13 @@ int addr_start_init(int mastersock, sockaddr_in *addr) {
 int main(int argc, char *argv[]) {
 	int result = -1;
 	
+	int master_socket = -1, port;
+    struct sockaddr_in addr;
+	
 	// read argv to set port
     result = getopt_long(argc, argv, short_option, long_option, NULL);
     if (result == -1) port = PORT_MAINNET;
     else if (result == 't') port = PORT_TESTNET;
-	
-	int master_socket = -1, port;
-    struct sockaddr_in addr;
 	
     if (addr_start_init(master_socket, addr) == -1)
 		exit(EXIT_FAILURE);
