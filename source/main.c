@@ -215,7 +215,7 @@ int main(int argc, char *argv[]) {
 						if (pp4m_FramerateTimer(CLOCKS_PER_SEC, (int*)&glo_lobby[i].clock_a, glo_lobby[i].timestamp + glo_lobby[i].clock_b) == true) {
 							
 							// post to clients the timeframe, they will do match calculations afterwards
-							//sv_redirect_svcode_LOBBY_POST(SV_LOBBY_POST_TIME, glo_lobby, NULL, i, NULL);
+							sv_redirect_svcode_LOBBY_POST(SV_LOBBY_POST_TIME, glo_lobby, NULL, i, NULL);
 						}
 						
 					} else {
@@ -223,7 +223,7 @@ int main(int argc, char *argv[]) {
 						if (pp4m_FramerateTimer(CLOCKS_PER_SEC, (int*)&glo_lobby[i].clock_b, glo_lobby[i].timestamp + glo_lobby[i].clock_a) == true) {
 							
 							// post to clients the timeframe, they will do match calculations afterwards
-							//sv_redirect_svcode_LOBBY_POST(SV_LOBBY_POST_TIME, glo_lobby, NULL, i, NULL);
+							sv_redirect_svcode_LOBBY_POST(SV_LOBBY_POST_TIME, glo_lobby, NULL, i, NULL);
 						}
 						
 					}
