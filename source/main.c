@@ -8,6 +8,7 @@
 #include <sys/time.h> // fd_set readfds;
 #include <getopt.h>
 
+#include "pp4m/pp4m.h"
 #include "pp4m/pp4m_io.h"
 #include "pp4m/pp4m_net.h"
 
@@ -209,7 +210,7 @@ int main(int argc, char *argv[]) {
 				if (lobby_checkroom_isbusy(glo_lobby, i) == 1) {
 					
 					// timer updates
-					if (glo_lobby[i].utimer == *glo_lobby[i].room.cli_a) {
+					if (glo_lobby[i].utimer == *glo_lobby[i].pair.cli_a) {
 						
 						if (pp4m_FramerateTimer(CLOCKS_PER_SEC, glo_lobby[i].clock_a, glo_lobby[i].timestamp) == true) {
 							
