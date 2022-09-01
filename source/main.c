@@ -177,7 +177,7 @@ int main(int argc, char *argv[]) {
 
                     if (room >= MAX_LOBBY) printf("\n");
                     else printf("roomId %d[%p:%p]\n", room, glo_lobby[room].pair.cli_a, glo_lobby[room].pair.cli_b);
-
+					
                 } else if (cl_status_LOBBY(result) == 0) {
 
                     int room = -1;
@@ -193,17 +193,44 @@ int main(int argc, char *argv[]) {
                         continue;
                     }
 					
-					// lobby updates
                     sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
-				
-				// user updates
+					
                 } else sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
             }
-
+			
+			// lobby updates
             for (int i = 0; i < MAX_LOBBY; i++) {
-
+				
+				// terminate/recycle an empty room
+				if (lobby_checkroom_endcycle(glo_lobby, i) == 1)
+					lobby_updateroom_reset(glo_lobby, i);
+				
+				// check timers of clients
+				if (lobby_checkroom_isbusy(glo_lobby, i) == 1) {
+					
+					// timer updates
+					if (glo_lobby[i].utimer == *glo_lobby[i].room.cli_a) {
+						
+						if (pp4m_FramerateTimer(CLOCKS_PER_SEC, glo_lobby[i].clock_a, glo_lobby[i].timestamp) == true) {
+							
+							// post to clients the timeframe, they will do match calculations afterwards
+							//sv_redirect_svcode_LOBBY_POST(SV_LOBBY_POST_TIME, glo_lobby, NULL, i, NULL);
+						}
+						
+					} else {
+						
+						if (pp4m_FramerateTimer(CLOCKS_PER_SEC, glo_lobby[i].clock_b, glo_lobby[i].timestamp) == true) {
+							
+							// post to clients the timeframe, they will do match calculations afterwards
+							//sv_redirect_svcode_LOBBY_POST(SV_LOBBY_POST_TIME, glo_lobby, NULL, i, NULL);
+						}
+						
+					}
+					
+				}
+				
                 // lobby is signed full, ready to play
-                if (lobby_checkroom_isready(glo_lobby, i) == 1) {
+                else if (lobby_checkroom_isready(glo_lobby, i) == 1) {
                     sv_redirect_svcode_POST(SV_LOBBY_POST_START, glo_lobby, NULL, i, NULL);
                     printf("roomId %d[%p:%p] started\n", i, glo_lobby[i].pair.cli_a, glo_lobby[i].pair.cli_b);
                 }
