@@ -232,7 +232,7 @@ int main(int argc, char *argv[]) {
 				
                 // lobby is signed full, ready to play
                 else if (lobby_checkroom_isready(glo_lobby, i) == 1) {
-                    sv_redirect_svcode_POST(SV_LOBBY_POST_START, glo_lobby, NULL, i, NULL);
+                    sv_redirect_svcode_POST(SV_LOBBY_POST_INIT, glo_lobby, NULL, i, NULL);
                     printf("roomId %d[%p:%p] started\n", i, glo_lobby[i].pair.cli_a, glo_lobby[i].pair.cli_b);
                 }
             }
