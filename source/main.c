@@ -74,6 +74,22 @@ int addr_start_init(int *master_socket, struct sockaddr_in *addr, int port) {
 	return result;
 }
 
+int socket_checklist(fd_set *sets, int *master_socket, int **sockets_list, int max_sockets) {
+	
+	for (int i = 0; i < max_sockets; i++) {
+
+		// if valid socket descriptor then add to read list
+        if (sockets_list[i] != 0)
+        	FD_SET(sockets_list[i], sets);
+
+		//set highest file descriptor number, need it for the select() function
+		if(sockets_list[i] > *master_socket)
+			*master_socket = sockets_list[i];
+    }
+        
+	return 0;
+}
+
 int main(int argc, char *argv[]) {
 	int result = -1;
 	
@@ -104,7 +120,9 @@ int main(int argc, char *argv[]) {
 
     init_lobby_list(glo_lobby, MAX_LOBBY);
 
-    printf("c4server starting... idle\n\n");
+	time_t t;
+    time(&t);
+    printf("c4server starting at %s\n\n", ctime(&t));
 
     while(1) {
 
@@ -112,19 +130,9 @@ int main(int argc, char *argv[]) {
 
         FD_SET(master_socket, &sets_fd);
         max_socket = master_socket;
-
-        for (int i = 0; i < MAX_CLIENTS; i++) {
-
-            // if valid socket descriptor then add to read list
-            if (glo_client_list[i] != 0)
-                FD_SET(glo_client_list[i], &sets_fd);
-
-            //set highest file descriptor number, need it for the select() function
-            if(glo_client_list[i] > max_socket)
-                max_socket = glo_client_list[i];
-        }
-
-
+		
+		// sort out and check list
+        client_checklist(&sets_fd, &max_socket, glo_client_list, MAX_CLIENTS);
 
         result = select(max_socket + 1, &sets_fd, NULL, NULL, &timeout);
         if (result == -1) {
