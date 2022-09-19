@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
         max_socket = master_socket;
 		
 		// sort out and check list
-        client_checklist(&sets_fd, &max_socket, glo_client_list, MAX_CLIENTS);
+        socket_checklist(&sets_fd, &max_socket, glo_client_list, MAX_CLIENTS);
 
         result = select(max_socket + 1, &sets_fd, NULL, NULL, &timeout);
         if (result == -1) {
