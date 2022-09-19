@@ -74,7 +74,7 @@ int addr_start_init(int *master_socket, struct sockaddr_in *addr, int port) {
 	return result;
 }
 
-int socket_checklist(fd_set *sets, int *master_socket, int **sockets_list, int max_sockets) {
+int socket_checklist(fd_set *sets, int *master_socket, int *sockets_list, int max_sockets) {
 	
 	for (int i = 0; i < max_sockets; i++) {
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
         max_socket = master_socket;
 		
 		// sort out and check list
-        socket_checklist(&sets_fd, &max_socket, &glo_client_list, MAX_CLIENTS);
+        socket_checklist(&sets_fd, &max_socket, glo_client_list, MAX_CLIENTS);
 
         result = select(max_socket + 1, &sets_fd, NULL, NULL, &timeout);
         if (result == -1) {
