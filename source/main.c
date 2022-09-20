@@ -90,6 +90,29 @@ int socket_checklist(fd_set *sets, int *master_socket, int *sockets_list, int ma
 	return 0;
 }
 
+int lobby_timer_update(net_lobby *lobby, int room) {
+	
+	if (lobby[room]->utimer == *lobby[room]->pair.cli_a) {
+		
+		if (pp4m_FramerateTimer(CLOCKS_PER_SEC, (int*)&lobby[room]->clock_a, lobby[room]->timestamp + lobby[room]->clock_b) == true) {
+							
+			// post to clients the timeframe, they will do match calculations afterwards
+			sv_redirect_svcode_LOBBY_POST(SV_LOBBY_POST_TIME, lobby, NULL, room, NULL);
+		}
+						
+	} else {
+						
+		if (pp4m_FramerateTimer(CLOCKS_PER_SEC, (int*)&lobby[room]->clock_b, lobby[room]->timestamp + lobby[room]->clock_a) == true) {
+							
+			// post to clients the timeframe, they will do match calculations afterwards
+			sv_redirect_svcode_LOBBY_POST(SV_LOBBY_POST_TIME, lobby, NULL, room, NULL);
+		}
+						
+	}
+
+	return 0;
+}
+
 int main(int argc, char *argv[]) {
 	int result = -1;
 	
@@ -202,9 +225,6 @@ int main(int argc, char *argv[]) {
                         continue;
                     }
 					
-					if (glo_lobby[room].status == LB_ERROR)
-						printf("error, lobby isn't ready still: [%s]\n", buffer);
-					
 					else sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
 					
                 } else sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
@@ -221,24 +241,7 @@ int main(int argc, char *argv[]) {
 				if (lobby_checkroom_isbusy(glo_lobby, i) == 1) {
 					
 					// timer updates
-					if (glo_lobby[i].utimer == *glo_lobby[i].pair.cli_a) {
-						
-						if (pp4m_FramerateTimer(CLOCKS_PER_SEC, (int*)&glo_lobby[i].clock_a, glo_lobby[i].timestamp + glo_lobby[i].clock_b) == true) {
-							
-							// post to clients the timeframe, they will do match calculations afterwards
-							sv_redirect_svcode_LOBBY_POST(SV_LOBBY_POST_TIME, glo_lobby, NULL, i, NULL);
-						}
-						
-					} else {
-						
-						if (pp4m_FramerateTimer(CLOCKS_PER_SEC, (int*)&glo_lobby[i].clock_b, glo_lobby[i].timestamp + glo_lobby[i].clock_a) == true) {
-							
-							// post to clients the timeframe, they will do match calculations afterwards
-							sv_redirect_svcode_LOBBY_POST(SV_LOBBY_POST_TIME, glo_lobby, NULL, i, NULL);
-						}
-						
-					}
-					
+					lobby_timer_update(glo_lobby, i);
 				}
 				
                 // lobby is signed full, ready to play
