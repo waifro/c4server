@@ -79,11 +79,12 @@ int socket_checklist(fd_set *sets, int *master_socket, int *sockets_list, int ma
 	for (int i = 0; i < max_sockets; i++) {
 
 		// if valid socket descriptor then add to read list
-        if (sockets_list[i] != 0)
+        if (sockets_list[i] != 0) {
         	FD_SET(sockets_list[i], sets);
-
+		}
+		
 		//set highest file descriptor number, need it for the select() function
-		if(sockets_list[i] > *master_socket)
+		if (sockets_list[i] > *master_socket)
 			*master_socket = sockets_list[i];
     }
         
@@ -92,9 +93,9 @@ int socket_checklist(fd_set *sets, int *master_socket, int *sockets_list, int ma
 
 int lobby_timer_update(net_lobby *lobby, int room) {
 	
-	if (lobby[room]->utimer == *lobby[room]->pair.cli_a) {
+	if (lobby[room].utimer == *lobby[room].pair.cli_a) {
 		
-		if (pp4m_FramerateTimer(CLOCKS_PER_SEC, (int*)&lobby[room]->clock_a, lobby[room]->timestamp + lobby[room]->clock_b) == true) {
+		if (pp4m_FramerateTimer(CLOCKS_PER_SEC, (int*)&lobby[room].clock_a, lobby[room].timestamp + lobby[room].clock_b) == true) {
 							
 			// post to clients the timeframe, they will do match calculations afterwards
 			sv_redirect_svcode_LOBBY_POST(SV_LOBBY_POST_TIME, lobby, NULL, room, NULL);
@@ -102,7 +103,7 @@ int lobby_timer_update(net_lobby *lobby, int room) {
 						
 	} else {
 						
-		if (pp4m_FramerateTimer(CLOCKS_PER_SEC, (int*)&lobby[room]->clock_b, lobby[room]->timestamp + lobby[room]->clock_a) == true) {
+		if (pp4m_FramerateTimer(CLOCKS_PER_SEC, (int*)&lobby[room].clock_b, lobby[room].timestamp + lobby[room].clock_a) == true) {
 							
 			// post to clients the timeframe, they will do match calculations afterwards
 			sv_redirect_svcode_LOBBY_POST(SV_LOBBY_POST_TIME, lobby, NULL, room, NULL);
