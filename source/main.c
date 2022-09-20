@@ -198,8 +198,7 @@ int main(int argc, char *argv[]) {
                 if (result == -1) {
 
 					client_disconnect(glo_client_list, i, glo_lobby, &addr, &connected, MAX_CLIENTS);
-					printf("glo_client_list after died: %d\n", glo_client_list[i]);
-					getchar();
+					glo_client_list[i] = 0;
 					
                 } else if (cl_status_LOBBY(result) == 0) {
 
