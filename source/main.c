@@ -192,7 +192,8 @@ int main(int argc, char *argv[]) {
             if (FD_ISSET(glo_client_list[i], &sets_fd)) {
 
                 result = sv_handlePacket(&glo_client_list[i], buffer);
-
+				printf("sv_handlePacket(): code %d\n", result);
+				
                 // lost connection (?)
                 if (result == -1) {
 
