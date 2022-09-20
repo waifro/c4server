@@ -132,7 +132,6 @@ int main(int argc, char *argv[]) {
     printf("c4server ready: port %d\n", port);
 
     char buffer[256];
-    socklen_t addr_size = sizeof(struct sockaddr);
 
     int connected = 0;
     int max_socket = 0;
@@ -197,19 +196,7 @@ int main(int argc, char *argv[]) {
                 // lost connection (?)
                 if (result == -1) {
 
-					printf("something went wrong\n");
-
-                    getpeername(glo_client_list[i], (struct sockaddr*)&addr, &addr_size);
-
-					printf("client discnct: %s:%d\t[%d of %d] | ", inet_ntoa(addr.sin_addr), htons(addr.sin_port), --connected, MAX_CLIENTS);
-
-                    int room = lobby_updateroom_cli_left(glo_lobby, &glo_client_list[i]);
-
-                    client_disconnect(&glo_client_list[i]);
-                    //glo_client_list[i] = 0;
-
-                    if (room >= MAX_LOBBY) printf("\n");
-                    else printf("roomId %d[%p:%p]\n", room, glo_lobby[room].pair.cli_a, glo_lobby[room].pair.cli_b);
+					client_disconnect(glo_client_list, i, glo_lobby, &addr, &connected, MAX_CLIENTS);
 					
                 } else if (cl_status_LOBBY(result) == 0) {
 
