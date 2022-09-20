@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
                     int room = lobby_updateroom_cli_left(glo_lobby, &glo_client_list[i]);
 
                     client_disconnect(&glo_client_list[i]);
-                    glo_client_list[i] = 0;
+                    //glo_client_list[i] = 0;
 
                     if (room >= MAX_LOBBY) printf("\n");
                     else printf("roomId %d[%p:%p]\n", room, glo_lobby[room].pair.cli_a, glo_lobby[room].pair.cli_b);
@@ -202,7 +202,10 @@ int main(int argc, char *argv[]) {
                         continue;
                     }
 					
-                    sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
+					if (glo_lobby[room].status == LB_ERROR)
+						printf("error, lobby isn't ready still: [%s]\n", buffer);
+					
+					else sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], room, buffer);
 					
                 } else sv_clcode_redirect(result, glo_lobby, &glo_client_list[i], -1, buffer);
             }
