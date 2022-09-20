@@ -194,6 +194,9 @@ int main(int argc, char *argv[]) {
                 result = sv_handlePacket(&glo_client_list[i], buffer);
 				printf("sv_handlePacket(): code %d\n", result);
 				
+				if (result == 0)
+					getchar();
+				
                 // lost connection (?)
                 if (result == -1) {
 
