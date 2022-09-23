@@ -12,6 +12,7 @@
 #include "pp4m/pp4m_io.h"
 #include "pp4m/pp4m_net.h"
 
+#include "c4network/net.h"
 #include "c4network/net_utils.h"
 #include "c4network/server.h"
 #include "c4network/client.h"
